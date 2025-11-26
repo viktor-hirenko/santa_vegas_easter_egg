@@ -21,6 +21,7 @@
   // URL параметры
   const URL_PARAMS = {
     SHOW_SANTA: 'showSanta',
+    STAR_CLICKED: 'starClicked',
   }
 
   // Сообщения для postMessage
@@ -138,10 +139,12 @@
   function checkWidgetState() {
     const urlParams = new URLSearchParams(window.location.search)
     const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
+    const starClickedParam = urlParams.get(URL_PARAMS.STAR_CLICKED)
     const santaCaught = localStorage.getItem(STORAGE_KEYS.SANTA_CLICKED)
 
     console.log('Проверка состояния виджета:')
     console.log('- showSanta параметр:', showSantaParam)
+    console.log('- starClicked параметр:', starClickedParam)
     console.log('- santaClicked в localStorage:', santaCaught)
 
     // Случай 1: ?showSanta=false ИЛИ Санта уже была поймана (Группа 3)
@@ -151,7 +154,16 @@
       return WIDGET_STATES.PARTY_NO_SANTA
     }
 
-    // Случай 2: Стандартный режим (Группа 1)
+    // Случай 2: ?starClicked=true - звезда уже кликнута, показываем праздничный режим с Сантой (Группа 2)
+    if (starClickedParam === 'true') {
+      console.log('Режим: Активная пасхалка (звезда кликнута, показываем Санту) - Группа 2')
+      isStarClicked = true
+      activatePartyMode(true)
+      startSantaAnimation()
+      return WIDGET_STATES.ACTIVE_EASTER_EGG
+    }
+
+    // Случай 3: Стандартный режим (Группа 1)
     console.log('Режим: Стандартный (со звездой) - Группа 1')
     return WIDGET_STATES.DEFAULT
   }
@@ -160,7 +172,7 @@
   function activatePartyMode(showSanta = false) {
     console.log('Активация праздничного режима, showSanta:', showSanta)
 
-    // Скрыть звезду
+    // Скрыть звезту
     if (starLayer) {
       starLayer.style.display = 'none'
     }
@@ -178,8 +190,14 @@
       partyLight.style.display = 'block'
     }
 
-    // Санту НЕ показываем в этом режиме
-    canShowSanta = false
+    // Установить флаг для показа Санты
+    if (showSanta) {
+      console.log('Режим с Сантой: Санта будет показана')
+      canShowSanta = true
+    } else {
+      console.log('Режим без Санты: Санта не будет показана')
+      canShowSanta = false
+    }
   }
 
   // Инициализация при загрузке

@@ -1,395 +1,507 @@
 <!DOCTYPE html>
 <html lang="uk">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Santa Vegas Widget - Тестова сторінка</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
+      .header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
 
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.95;
-        }
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.95;
+      }
 
-        .content {
-            padding: 40px;
-        }
+      .content {
+        padding: 40px;
+      }
 
-        .section {
-            margin-bottom: 40px;
-        }
+      .section {
+        margin-bottom: 40px;
+      }
 
-        .section h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
+      .section h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
 
-        .section h3 {
-            color: #764ba2;
-            margin: 20px 0 10px 0;
-            font-size: 1.3rem;
-        }
+      .section h3 {
+        color: #764ba2;
+        margin: 20px 0 10px 0;
+        font-size: 1.3rem;
+      }
 
-        .instruction-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 4px;
-        }
+      .instruction-box {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
 
-        .instruction-box ol {
-            margin-left: 20px;
-        }
+      .instruction-box ol {
+        margin-left: 20px;
+      }
 
-        .instruction-box li {
-            margin: 10px 0;
-        }
+      .instruction-box li {
+        margin: 10px 0;
+      }
 
-        .code-block {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 20px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 15px 0;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+      .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 15px 0;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+      }
 
-        .code-block code {
-            display: block;
-        }
+      .code-block code {
+        display: block;
+      }
 
-        .demo-section {
-            background: #f0f0f0;
-            padding: 30px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
+      .demo-section {
+        background: #f0f0f0;
+        padding: 30px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
 
-        .demo-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
+      .demo-controls {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
 
-        .demo-controls label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .demo-controls label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .demo-controls label:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
+      .demo-controls label:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
 
-        .demo-controls input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
+      .demo-controls input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
 
-        #widgetFrame {
-            width: 100%;
-            height: 256px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            background: rgb(34, 0, 65);
-        }
+      #widgetFrame {
+        width: 100%;
+        height: 256px;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        background: rgb(34, 0, 65);
+      }
 
-        .info-box {
-            background: #e7f3ff;
-            border: 2px solid #2196F3;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
+      .info-box {
+        background: #e7f3ff;
+        border: 2px solid #2196f3;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+      }
 
-        .info-box strong {
-            color: #1976D2;
-        }
+      .info-box strong {
+        color: #1976d2;
+      }
 
-        .event-log {
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 13px;
-            margin-top: 20px;
-        }
+      .event-log {
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 13px;
+        margin-top: 20px;
+      }
 
-        .event-log .event {
-            padding: 5px;
-            margin: 3px 0;
-            background: #f5f5f5;
-            border-radius: 3px;
-        }
+      .event-log .event {
+        padding: 5px;
+        margin: 3px 0;
+        background: #f5f5f5;
+        border-radius: 3px;
+      }
 
-        .event-log .event.received {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
+      .event-log .event.received {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
 
-        .event-log .event.sent {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
+      .event-log .event.sent {
+        background: #e3f2fd;
+        color: #1565c0;
+      }
 
-        .highlight {
-            background: #fff59d;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
+      .highlight {
+        background: #fff59d;
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+
+      .group-description {
+        background: #f0f8ff;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        font-size: 14px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>🎅 Santa Vegas Widget</h1>
-            <p>Тестова сторінка та інструкція з інтеграції</p>
+      <div class="header">
+        <h1>🎅 Santa Vegas Widget</h1>
+        <p>Тестова сторінка та інструкція з інтеграції</p>
+      </div>
+
+      <div class="content">
+        <!-- Демо секция -->
+        <div class="section">
+          <h2>📺 Демонстрація віджета</h2>
+          <div class="demo-section">
+            <div class="demo-controls">
+              <label>
+                <input type="radio" name="widgetGroup" value="group1" checked />
+                <span>Група 1: Стандартний режим (зі звездою)</span>
+              </label>
+              <label>
+                <input type="radio" name="widgetGroup" value="group2" />
+                <span>Група 2: Активна пасхалка (Санта)</span>
+              </label>
+              <label>
+                <input type="radio" name="widgetGroup" value="group3" />
+                <span>Група 3: Поймана пасхалка (без Санти)</span>
+              </label>
+            </div>
+
+            <div class="group-description" id="groupDescription">
+              <p>
+                <strong>Група 1:</strong> Користувач бачить стандартний логотип
+                Santa Vegas із підсвіченою зіркою. При кліку на зірку
+                активується режим Group 2.
+              </p>
+            </div>
+
+            <iframe id="widgetFrame" src="index.html?showSanta=true"></iframe>
+
+            <div class="event-log" id="eventLog">
+              <div><strong>Журнал подій:</strong></div>
+            </div>
+          </div>
         </div>
 
-        <div class="content">
-            <!-- Демо секция -->
-            <div class="section">
-                <h2>📺 Демонстрація віджета</h2>
-                <div class="demo-section">
-                    <div class="demo-controls">
-                        <label>
-                            <input type="checkbox" id="allowSanta" checked>
-                            <span>Дозволити показ Санти</span>
-                        </label>
-                    </div>
+        <!-- Інструкція з встраивания -->
+        <div class="section">
+          <h2>📋 Інструкція з встановлення віджета</h2>
 
-                    <iframe id="widgetFrame" src="index.html?showSanta=true"></iframe>
-
-                    <div class="event-log" id="eventLog">
-                        <div><strong>Журнал подій:</strong></div>
-                    </div>
-                </div>
+          <div class="instruction-box">
+            <h3>1. Додайте iframe на вашу сторінку</h3>
+            <p>Використовуйте наступний URL для віджета:</p>
+            <div class="code-block">
+              <code
+                >&lt;!-- З анімацією Санти --&gt; &lt;iframe
+                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"
+                style="width: 827px; height: 256px; border: none; background:
+                transparent;" frameborder="0" scrolling="no" &gt;&lt;/iframe&gt;
+                &lt;!-- Без Санти (тільки музика) --&gt; &lt;iframe
+                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"
+                style="width: 827px; height: 256px; border: none; background:
+                transparent;" frameborder="0" scrolling="no"
+                &gt;&lt;/iframe&gt;</code
+              >
             </div>
+          </div>
 
-            <!-- Інструкція з встраивания -->
-            <div class="section">
-                <h2>📋 Інструкція з встановлення віджета</h2>
-
-                <div class="instruction-box">
-                    <h3>1. Додайте iframe на вашу сторінку</h3>
-                    <p>Використовуйте наступний URL для віджета:</p>
-                    <div class="code-block"><code>&lt;!-- З анімацією Санти --&gt;
-&lt;iframe 
-    src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"
-    style="width: 827px; height: 256px; border: none; background: transparent;"
-    frameborder="0"
-    scrolling="no"
-&gt;&lt;/iframe&gt;
-
-&lt;!-- Без Санти (тільки музика) --&gt;
-&lt;iframe 
-    src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"
-    style="width: 827px; height: 256px; border: none; background: transparent;"
-    frameborder="0"
-    scrolling="no"
-&gt;&lt;/iframe&gt;</code></div>
-                </div>
-
-                <div class="instruction-box">
-                    <h3>2. Обробка події кліку по Санті (опціонально)</h3>
-                    <p>Для Vue.js/TypeScript проектів - приклизний код:</p>
-                    <div class="code-block"><code>// У вашому компоненті (mounted/onMounted)
-window.addEventListener('message', (event) =&gt; {
-  if (event.data?.source === 'santa-vegas-widget') {
-    if (event.data.type === 'santaClicked') {
-      // Ваша логіка: відкрити модалку, navigate, тощо
-      this.handleSantaClick(); // або router.push('/promo')
-    }
-  }
-});
-
-// Динамічна зміна URL iframe (якщо потрібно)
-const showSanta = ref(true);
-const iframeUrl = computed(() =&gt; 
-  `https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=${showSanta.value}`
-);</code></div>
-                </div>
-
-                <div class="instruction-box">
-                    <h3>3. Налаштування</h3>
-                    <p><strong>Параметри iframe:</strong></p>
-                    <ul>
-                        <li><span class="highlight">width</span> - рекомендована ширина: 827px (пропорції логотипа)</li>
-                        <li><span class="highlight">height</span> - рекомендована висота: 256px</li>
-                        <li><span class="highlight">background: transparent</span> - для прозорого фону</li>
-                    </ul>
-
-                    <p style="margin-top: 15px;"><strong>URL параметр showSanta:</strong></p>
-                    <ul>
-                        <li><span class="highlight">?showSanta=true</span> - показувати анімацію Санти</li>
-                        <li><span class="highlight">?showSanta=false</span> - тільки музика, без анімації</li>
-                        <li>Без параметра - показується Санта за замовчуванням</li>
-                    </ul>
-                </div>
-
-                <div class="instruction-box">
-                    <h3>4. postMessage події</h3>
-                    <p><strong>Віджет відправляє:</strong></p>
-                    <ul>
-                        <li><code>{ type: 'santaClicked', source: 'santa-vegas-widget' }</code> - клік по Санті</li>
-                    </ul>
-
-                    <p style="margin-top: 15px;"><strong>Структура події:</strong></p>
-                    <div class="code-block"><code>interface SantaClickedEvent {
-  type: 'santaClicked';
-  source: 'santa-vegas-widget';
-}</code></div>
-                </div>
-
-                <div class="info-box">
-                    <strong>💡 Порада:</strong> Керуйте показом Санти через URL параметр. Для Vue.js просто змінюйте
-                    значення у computed/ref і прив'язуйте до :src iframe.
-                </div>
+          <div class="instruction-box">
+            <h3>2. Обробка події кліку по Санті (опціонально)</h3>
+            <p>Для Vue.js/TypeScript проектів - приклизний код:</p>
+            <div class="code-block">
+              <code
+                >// У вашому компоненті (mounted/onMounted)
+                window.addEventListener('message', (event) =&gt; { if
+                (event.data?.source === 'santa-vegas-widget') { if
+                (event.data.type === 'santaClicked') { // Ваша логіка: відкрити
+                модалку, navigate, тощо this.handleSantaClick(); // або
+                router.push('/promo') } } }); // Динамічна зміна URL iframe
+                (якщо потрібно) const showSanta = ref(true); const iframeUrl =
+                computed(() =&gt;
+                `https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=${showSanta.value}`
+                );</code
+              >
             </div>
+          </div>
 
-            <!-- Приклад для Vue.js -->
-            <div class="section">
-                <h2>💻 Приклад інтеграції у Vue.js компонент</h2>
-                <div class="code-block"><code>&lt;template&gt;
-  &lt;iframe 
-    :src="widgetUrl"
-    style="width: 827px; height: 256px; border: none; background: transparent;"
-    frameborder="0"
-    scrolling="no"
-  /&gt;
-&lt;/template&gt;
+          <div class="instruction-box">
+            <h3>3. Налаштування</h3>
+            <p><strong>Параметри iframe:</strong></p>
+            <ul>
+              <li>
+                <span class="highlight">width</span> - рекомендована ширина:
+                827px (пропорції логотипа)
+              </li>
+              <li>
+                <span class="highlight">height</span> - рекомендована висота:
+                256px
+              </li>
+              <li>
+                <span class="highlight">background: transparent</span> - для
+                прозорого фону
+              </li>
+            </ul>
 
-&lt;script setup lang="ts"&gt;
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+            <p style="margin-top: 15px">
+              <strong>URL параметр showSanta:</strong>
+            </p>
+            <ul>
+              <li>
+                <span class="highlight">?showSanta=true</span> - показувати
+                анімацію Санти
+              </li>
+              <li>
+                <span class="highlight">?showSanta=false</span> - не показується
+                анімація Санти
+              </li>
+              <li>Без параметра - показується Санта за замовчуванням</li>
+              <li>
+                <span class="highlight">?starClicked=true</span> - параметр
+                додано тільки для емуляції активної пасхалки при кліку на зірку
+                для тестової сторінки. На проді не використовується.
+              </li>
+            </ul>
+          </div>
 
-const showSanta = ref(true);
+          <div class="instruction-box">
+            <h3>4. postMessage події</h3>
+            <p><strong>Віджет відправляє:</strong></p>
+            <ul>
+              <li>
+                <code
+                  >{ type: 'santaClicked', source: 'santa-vegas-widget' }</code
+                >
+                - клік по Санті
+              </li>
+              <li>
+                <code>{ type: 'sound_on', source: 'santa-vegas-widget' }</code>
+                - звук включено
+              </li>
+              <li>
+                <code>{ type: 'sound_off', source: 'santa-vegas-widget' }</code>
+                - звук вимкнено
+              </li>
+            </ul>
 
-const widgetUrl = computed(() =&gt; {
-  const baseUrl = 'https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html';
-  return `${baseUrl}?showSanta=${showSanta.value}`;
-});
-
-const handleMessage = (event: MessageEvent) =&gt; {
-  if (event.data?.source === 'santa-vegas-widget') {
-    if (event.data.type === 'santaClicked') {
-      // Ваша логіка обробки кліку
-      console.log('Santa clicked! 🎅');
-    }
-  }
-};
-
-onMounted(() =&gt; {
-  window.addEventListener('message', handleMessage);
-});
-
-onUnmounted(() =&gt; {
-  window.removeEventListener('message', handleMessage);
-});
-&lt;/script&gt;</code></div>
+            <p style="margin-top: 15px"><strong>Структура події:</strong></p>
+            <div class="code-block">
+              <code
+                >interface SantaClickedEvent { type: 'santaClicked'; source:
+                'santa-vegas-widget'; } interface SoundEvent { type: 'sound_on'
+                | 'sound_off'; source: 'santa-vegas-widget'; }</code
+              >
             </div>
+          </div>
+
+          <div class="info-box">
+            <strong>💡 Порада:</strong> Керуйте показом Санти через URL
+            параметр. Для Vue.js просто змінюйте значення у computed/ref і
+            прив'язуйте до :src iframe.
+          </div>
         </div>
+
+        <!-- Приклад для Vue.js -->
+        <div class="section">
+          <h2>💻 Приклад інтеграції у Vue.js компонент</h2>
+          <div class="code-block">
+            <code
+              >&lt;template&gt; &lt;iframe :src="widgetUrl" style="width: 827px;
+              height: 256px; border: none; background: transparent;"
+              frameborder="0" scrolling="no" /&gt; &lt;/template&gt; &lt;script
+              setup lang="ts"&gt; import { ref, computed, onMounted, onUnmounted
+              } from 'vue'; const showSanta = ref(true); const widgetUrl =
+              computed(() =&gt; { const baseUrl =
+              'https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html';
+              return `${baseUrl}?showSanta=${showSanta.value}`; }); const
+              handleMessage = (event: MessageEvent) =&gt; { if
+              (event.data?.source === 'santa-vegas-widget') { if
+              (event.data.type === 'santaClicked') { // Ваша логіка обробки
+              кліку console.log('Санта клікнуто!'); } if (event.data.type ===
+              'sound_on') { console.log('Звук включено'); } if (event.data.type
+              === 'sound_off') { console.log('Звук вимкнено'); } } };
+              onMounted(() =&gt; { window.addEventListener('message',
+              handleMessage); }); onUnmounted(() =&gt; {
+              window.removeEventListener('message', handleMessage); });
+              &lt;/script&gt;</code
+            >
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Логіка тестової сторінки
-        const allowSantaCheckbox = document.getElementById('allowSanta');
-        const widgetFrame = document.getElementById('widgetFrame');
-        const eventLog = document.getElementById('eventLog');
+      // Очищуємо localStorage при загрузці тестової сторінки для чистого тесту
+      localStorage.removeItem('santaClicked')
 
-        let allowShowSanta = true;
+      // Логіка тестової сторінки
+      const widgetFrame = document.getElementById('widgetFrame')
+      const eventLog = document.getElementById('eventLog')
+      const groupDescription = document.getElementById('groupDescription')
+      const groupRadios = document.querySelectorAll('input[name="widgetGroup"]')
 
-        // Функція логування подій
-        function logEvent(message, type = 'info') {
-            const eventDiv = document.createElement('div');
-            eventDiv.className = `event ${type}`;
-            const timestamp = new Date().toLocaleTimeString('uk-UA');
-            eventDiv.textContent = `[${timestamp}] ${message}`;
-            eventLog.appendChild(eventDiv);
-            eventLog.scrollTop = eventLog.scrollHeight;
+      const groupDescriptions = {
+        group1:
+          '<p><strong>Група 1: Стандартний режим</strong></p><p>Користувач бачить стандартний логотип Santa Vegas із підсвіченою зіркою. При кліку на зірку активується режим Group 2.</p>',
+        group2:
+          '<p><strong>Група 2: Активна пасхалка</strong></p><p>Після кліку на зірку користувач бачить альтернативну анімацію гірлянд та пролітаючого Санту. Гірлянди змінюються на party версію, з\'являється праздничная підсвітка. Можна виконати клік на Санту щоб його "поймати".</p>',
+        group3:
+          '<p><strong>Група 3: Поймана пасхалка</strong></p><p>Після того як Санта був пойманий (або при URL параметрі ?showSanta=false), користувач бачить тільки праздничну версію лого без анімації Санти. Звезда та клікабельні зони Санти не видні.</p>',
+      }
+
+      // Функція логування подій
+      function logEvent(message, type = 'info') {
+        const eventDiv = document.createElement('div')
+        eventDiv.className = `event ${type}`
+        const timestamp = new Date().toLocaleTimeString('uk-UA')
+        eventDiv.textContent = `[${timestamp}] ${message}`
+        eventLog.appendChild(eventDiv)
+        eventLog.scrollTop = eventLog.scrollHeight
+      }
+
+      // Обробка зміни групи
+      groupRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+          const selectedGroup = this.value
+          logEvent(`Вибрано: ${this.nextElementSibling.textContent}`, 'info')
+
+          // Оновляємо опис групи
+          groupDescription.innerHTML = groupDescriptions[selectedGroup]
+
+          // Очищуємо кеш браузера та localStorage ДО завантаження нового стану
+          if ('caches' in window) {
+            caches.keys().then(cacheNames => {
+              cacheNames.forEach(cacheName => {
+                caches.delete(cacheName)
+              })
+            })
+          }
+
+          // ВСЕГДА очищаємо localStorage спочатку
+          localStorage.removeItem('santaClicked')
+          logEvent('Очищено: кеш браузера та localStorage', 'info')
+
+          // Встановлюємо стан localStorage ТОЛЬКО для Групи 3
+          if (selectedGroup === 'group1') {
+            logEvent(
+              'Завантаження Групи 1: стандартний режим (зі звездою)',
+              'info'
+            )
+          } else if (selectedGroup === 'group2') {
+            // Група 2: активна пасхалка - Санта НЕ поймана
+            logEvent(
+              'Завантаження Групи 2: альтернативна анімація + пролітаючий Санта',
+              'info'
+            )
+          } else if (selectedGroup === 'group3') {
+            // Група 3: поймана пасхалка - Санта вже пойманий
+            localStorage.setItem('santaClicked', 'true')
+            logEvent(
+              'Встановлено: santaClicked = true (Санта пойманий)',
+              'info'
+            )
+            logEvent('Завантаження Групи 3: без Санти (режим поймання)', 'info')
+          }
+
+          // Встановлюємо відповідний URL для iframe
+          let newUrl = 'index.html'
+          if (selectedGroup === 'group2') {
+            // Група 2: звезда уже кликнута, показываем праздничный режим с Сантой
+            newUrl = 'index.html?starClicked=true'
+          } else if (selectedGroup === 'group3') {
+            // Група 3: не показываем Санту
+            newUrl = 'index.html?showSanta=false'
+          }
+
+          widgetFrame.src = newUrl
+        })
+      })
+
+      // Слухаємо повідомлення від віджета
+      window.addEventListener('message', function (event) {
+        if (event.data && event.data.source === 'santa-vegas-widget') {
+          // Клік по Санті
+          if (event.data.type === 'santaClicked') {
+            logEvent('🎅 Санта клікнуто!', 'received')
+            alert('Ви спіймали Санту! 🎄✨')
+          }
+          // Звук включено
+          if (event.data.type === 'sound_on') {
+            logEvent('🔊 Звук включено', 'received')
+          }
+          // Звук вимкнено
+          if (event.data.type === 'sound_off') {
+            logEvent('🔇 Звук вимкнено', 'received')
+          }
         }
+      })
 
-        // Обробка зміни чекбоксу
-        allowSantaCheckbox.addEventListener('change', function () {
-            allowShowSanta = this.checked;
-            logEvent(`Показ Санти: ${allowShowSanta ? 'ДОЗВОЛЕНО' : 'ЗАБОРОНЕНО'}`, 'info');
-
-            // Обновляем URL iframe с новым параметром (локально для тестування)
-            const newUrl = `index.html?showSanta=${allowShowSanta}`;
-            widgetFrame.src = newUrl;
-            logEvent(`Перезагружаємо iframe з URL: ${newUrl}`, 'info');
-        });
-
-        // Слухаємо повідомлення від віджета
-        window.addEventListener('message', function (event) {
-            if (event.data && event.data.source === 'santa-vegas-widget') {
-                // Клік по Санті
-                if (event.data.type === 'santaClicked') {
-                    logEvent('🎅 САНТА КЛІКНУТО!', 'received');
-                    alert('Ви спіймали Санту! 🎄✨');
-                }
-            }
-        });
-
-        // Початкове повідомлення
-        logEvent('Тестова сторінка готова. Очікуємо події від віджета...', 'info');
+      // Початкове повідомлення
+      logEvent('Тестова сторінка готова. Очікуємо події від віджета...', 'info')
     </script>
-</body>
-
+  </body>
 </html>
