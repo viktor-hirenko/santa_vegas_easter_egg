@@ -118,7 +118,7 @@
 
     // 2. Сменить гирлянды на праздничные
     if (lampsLayer) {
-      lampsLayer.src = 'img/new/lamps_827x256_party.svg'
+      lampsLayer.src = 'img/lamps_827x256_party.svg'
       console.log('Гирлянды заменены на праздничные')
     }
 
@@ -182,7 +182,7 @@
 
     // Сменить гирлянды на праздничные
     if (lampsLayer) {
-      lampsLayer.src = 'img/new/lamps_827x256_party.svg'
+      lampsLayer.src = 'img/lamps_827x256_party.svg'
     }
 
     // Показать праздничную подсветку
