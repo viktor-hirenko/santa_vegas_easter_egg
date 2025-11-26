@@ -93,19 +93,68 @@
     }, 500)
   }
 
+  // Проверка состояния виджета при загрузке
+  function checkWidgetState() {
+    const urlParams = new URLSearchParams(window.location.search)
+    const showSantaParam = urlParams.get('showSanta')
+    const santaCaught = localStorage.getItem('santaClicked')
+
+    console.log('Проверка состояния виджета:')
+    console.log('- showSanta параметр:', showSantaParam)
+    console.log('- santaClicked в localStorage:', santaCaught)
+
+    // Случай 1: ?showSanta=false ИЛИ Санта уже была поймана
+    if (showSantaParam === 'false' || santaCaught === 'true') {
+      console.log('Режим: Праздничная версия БЕЗ Санты')
+      activatePartyMode(false)
+      return 'party-no-santa'
+    }
+
+    // Случай 2: Стандартный режим (Группа 1)
+    console.log('Режим: Стандартный (со звездой)')
+    return 'default'
+  }
+
+  // Активировать праздничный режим
+  function activatePartyMode(showSanta = false) {
+    console.log('Активация праздничного режима, showSanta:', showSanta)
+
+    // Скрыть звезду
+    if (starLayer) {
+      starLayer.style.display = 'none'
+    }
+    if (starClickZone) {
+      starClickZone.style.display = 'none'
+    }
+
+    // Сменить гирлянды на праздничные
+    if (lampsLayer) {
+      lampsLayer.src = 'img/new/lamps_827x256_party.svg'
+    }
+
+    // Показать праздничную подсветку
+    if (partyLight) {
+      partyLight.style.display = 'block'
+    }
+
+    // Санту НЕ показываем в этом режиме
+    canShowSanta = false
+  }
+
   // Инициализация при загрузке
   function init() {
     // Скрываем Санту при загрузке
     santaAnimationWrapper.style.display = 'none'
 
-    // Проверяем параметр URL
-    checkShowSantaFromUrl()
+    // Проверяем состояние виджета (localStorage + URL параметры)
+    const widgetState = checkWidgetState()
+    console.log('Состояние виджета при инициализации:', widgetState)
 
     // Настройка обработчиков событий
     soundToggle.addEventListener('click', toggleSound)
 
-    // Обработчик для клика на звезду
-    if (starClickZone) {
+    // Обработчик для клика на звезду (только если в стандартном режиме)
+    if (widgetState === 'default' && starClickZone) {
       starClickZone.addEventListener('click', handleStarClick)
       console.log('Обработчик клика на звезду добавлен')
     }
@@ -187,6 +236,13 @@
       return
     }
 
+    // Проверяем, не была ли Санта уже поймана
+    const santaCaught = localStorage.getItem('santaClicked')
+    if (santaCaught === 'true') {
+      console.log('Санта уже была поймана ранее')
+      return
+    }
+
     isAnimationPlaying = true
     console.log('Запускаем анимацию')
 
@@ -256,6 +312,10 @@
     }
 
     console.log('🎅 Санту поймали! Обрабатываем клик')
+
+    // Сохраняем в localStorage
+    localStorage.setItem('santaClicked', 'true')
+    console.log('Сохранено в localStorage: santaClicked = true')
 
     // Мгновенно скрываем кликабельную зону
     setSantaClickZonesDisplay('none')
