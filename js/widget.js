@@ -10,12 +10,18 @@
   const santaAnimation = document.getElementById('santaAnimation')
   const santaClickZoneTop = document.getElementById('santaClickZoneTop')
   const santaClickZoneBottom = document.getElementById('santaClickZoneBottom')
+  const starLayer = document.getElementById('starLayer')
+  const starClickZone = document.getElementById('starClickZone')
+  const lampsLayer = document.getElementById('lampsLayer')
+  const partyLight = document.getElementById('partyLight')
+  const baseLogoLayer = document.getElementById('baseLogoLayer')
 
   // Состояние
   let isSoundPlaying = false
   let canShowSanta = false
   let isAnimationPlaying = false
   let clickZoneTimeout = null
+  let isStarClicked = false
 
   // Вспомогательная функция для управления зонами Санты
   function setSantaClickZonesDisplay(display) {
@@ -42,6 +48,51 @@
     return canShowSanta
   }
 
+  // Обработка клика на звезду
+  function handleStarClick() {
+    console.log('handleStarClick вызвана, isStarClicked:', isStarClicked)
+
+    if (isStarClicked) {
+      console.log('Звезда уже была нажата')
+      return
+    }
+
+    isStarClicked = true
+    console.log('⭐ Звезда нажата! Активируем праздничный режим и Санту')
+
+    // 1. Скрыть звезду с fade эффектом
+    if (starLayer) {
+      starLayer.classList.add('fade-out')
+      console.log('Начинаем fade-out для звезды')
+
+      setTimeout(() => {
+        starLayer.style.display = 'none'
+        if (starClickZone) {
+          starClickZone.style.display = 'none'
+        }
+        console.log('Звезда скрыта после fade-out')
+      }, 500) // Ждем окончания fade-out анимации
+    }
+
+    // 2. Сменить гирлянды на праздничные
+    if (lampsLayer) {
+      lampsLayer.src = 'img/new/lamps_827x256_party.svg'
+      console.log('Гирлянды заменены на праздничные')
+    }
+
+    // 3. Показать праздничную подсветку
+    if (partyLight) {
+      partyLight.style.display = 'block'
+      console.log('Праздничная подсветка показана')
+    }
+
+    // 4. Запустить анимацию Санты
+    setTimeout(() => {
+      console.log('Запускаем анимацию Санты через 500мс')
+      startSantaAnimation()
+    }, 500)
+  }
+
   // Инициализация при загрузке
   function init() {
     // Скрываем Санту при загрузке
@@ -52,6 +103,12 @@
 
     // Настройка обработчиков событий
     soundToggle.addEventListener('click', toggleSound)
+
+    // Обработчик для клика на звезду
+    if (starClickZone) {
+      starClickZone.addEventListener('click', handleStarClick)
+      console.log('Обработчик клика на звезду добавлен')
+    }
 
     // Добавляем обработчики клика на кликабельные зоны Санты
     if (santaClickZoneTop) {
@@ -67,16 +124,7 @@
       })
     }
 
-    // Слушаем сообщения от родительского окна (для santaClicked)
-    window.addEventListener('message', handleParentMessage)
-
     console.log('Инициализация завершена')
-  }
-
-  // Обработка сообщений от родительского окна (только для santaClicked)
-  function handleParentMessage(event) {
-    // Здесь можно обрабатывать другие сообщения от родителя при необходимости
-    console.log('Получено сообщение от родителя:', event.data)
   }
 
   // Переключение звука (только музыка, анимация Санты НЕ запускается)
@@ -160,19 +208,19 @@
       console.log('SVG перезагружен')
     }, 10)
 
-    // Скрываем кликабельную зону через 5 секунд
+    // Скрываем кликабельную зону через 14 секунд
     if (clickZoneTimeout) {
       clearTimeout(clickZoneTimeout)
     }
     clickZoneTimeout = setTimeout(() => {
-      console.log('Скрываем кликабельную зону (5 сек прошло)')
+      console.log('Скрываем кликабельную зону (14 сек прошло)')
       setSantaClickZonesDisplay('none')
-    }, 5000)
+    }, 14000)
 
-    // Скрываем анимацию после завершения (5 секунд по длительности в SVG)
+    // Скрываем анимацию после завершения (14 секунд - полная длительность SVG)
     setTimeout(() => {
       handleAnimationEnd()
-    }, 5000)
+    }, 14000)
   }
 
   // Обработка окончания анимации
