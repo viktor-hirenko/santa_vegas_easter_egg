@@ -230,6 +230,10 @@
                 <input type="radio" name="widgetGroup" value="group3" />
                 <span>Група 3: Поймана пасхалка (без Санти)</span>
               </label>
+              <label>
+                <input type="checkbox" id="debugZones" />
+                <span>🔍 Показати клікабельні зони</span>
+              </label>
             </div>
 
             <div class="group-description" id="groupDescription">
@@ -240,7 +244,112 @@
               </p>
             </div>
 
-            <iframe id="widgetFrame" src="index.html?showSanta=true"></iframe>
+            <div style="position: relative; display: inline-block; width: 100%">
+              <iframe
+                id="widgetFrame"
+                src="index.html"
+                style="
+                  width: 100%;
+                  height: 256px;
+                  border: 2px solid #667eea;
+                  border-radius: 8px;
+                  background: rgb(34, 0, 65);
+                  display: block;
+                "
+              ></iframe>
+
+              <!-- Debug zones overlay -->
+              <div
+                id="debugOverlay"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  pointer-events: none;
+                  z-index: 999;
+                "
+              >
+                <!-- Star Click Zone (красний) -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -57%);
+                    width: 13cqw;
+                    height: min(22cqw, 180px);
+                    background: rgba(255, 0, 0, 0.3);
+                    border: 2px solid red;
+                  "
+                >
+                  <div
+                    style="
+                      /* background: red; */
+                      color: white;
+                      padding: 4px 8px;
+                      font-size: 11px;
+                      font-weight: bold;
+                      border-radius: 3px;
+                    "
+                  >
+                    Star
+                  </div>
+                </div>
+                <!-- Santa Top Zone (зелений) -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 40%;
+                    background: rgba(0, 255, 0, 0.2);
+                    border: 2px solid lime;
+                  "
+                >
+                  <div
+                    style="
+                      /* background: lime; */
+                      color: white;
+                      padding: 4px 8px;
+                      font-size: 11px;
+                      font-weight: bold;
+                      border-radius: 3px;
+                    "
+                  >
+                    Santa Top
+                  </div>
+                </div>
+                <!-- Santa Bottom Zone (синій) -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 40%;
+                    left: 0;
+                    width: 100%;
+                    height: 60%;
+                    background: rgba(0, 0, 255, 0.2);
+                    border: 2px solid blue;
+                  "
+                >
+                  <div
+                    style="
+                      /* background: blue; */
+                      color: white;
+                      padding: 4px 8px;
+                      font-size: 11px;
+                      font-weight: bold;
+                      border-radius: 3px;
+                    "
+                  >
+                    Santa Bottom
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="event-log" id="eventLog">
               <div><strong>Журнал подій:</strong></div>
@@ -403,6 +512,13 @@
       const eventLog = document.getElementById('eventLog')
       const groupDescription = document.getElementById('groupDescription')
       const groupRadios = document.querySelectorAll('input[name="widgetGroup"]')
+      const debugZonesCheckbox = document.getElementById('debugZones')
+      const debugOverlay = document.getElementById('debugOverlay')
+
+      // Обработка чекбокса для показа/скрытия клікабельних зон
+      debugZonesCheckbox.addEventListener('change', function () {
+        debugOverlay.style.display = this.checked ? 'block' : 'none'
+      })
 
       const groupDescriptions = {
         group1:
