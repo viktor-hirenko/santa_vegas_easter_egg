@@ -2,6 +2,47 @@
 ;(function () {
   'use strict'
 
+  // ============================================
+  // КОНСТАНТЫ И КОНФИГУРАЦИЯ
+  // ============================================
+
+  // Состояния виджета
+  const WIDGET_STATES = {
+    DEFAULT: 'default', // Группа 1: стандартный режим (со звездой)
+    ACTIVE_EASTER_EGG: 'active', // Группа 2: активная пасхалка (с Сантой)
+    PARTY_NO_SANTA: 'party-no-santa', // Группа 3: пойманная пасхалка (без Санты)
+  }
+
+  // Ключи хранилища
+  const STORAGE_KEYS = {
+    SANTA_CLICKED: 'santaClicked',
+  }
+
+  // URL параметры
+  const URL_PARAMS = {
+    SHOW_SANTA: 'showSanta',
+  }
+
+  // Сообщения для postMessage
+  const EVENTS = {
+    SANTA_CLICKED: {
+      type: 'santaClicked',
+      source: 'santa-vegas-widget',
+    },
+    SOUND_ON: {
+      type: 'sound_on',
+      source: 'santa-vegas-widget',
+    },
+    SOUND_OFF: {
+      type: 'sound_off',
+      source: 'santa-vegas-widget',
+    },
+  }
+
+  // ============================================
+  // ЭЛЕМЕНТЫ DOM
+  // ============================================
+
   // Элементы DOM
   const soundToggle = document.getElementById('soundToggle')
   const soundIcon = document.getElementById('soundIcon')
@@ -32,7 +73,7 @@
   // Проверяем query параметр для показа Санты
   function checkShowSantaFromUrl() {
     const urlParams = new URLSearchParams(window.location.search)
-    const showSantaParam = urlParams.get('showSanta')
+    const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
 
     console.log('Query параметр showSanta:', showSantaParam)
 
@@ -96,23 +137,23 @@
   // Проверка состояния виджета при загрузке
   function checkWidgetState() {
     const urlParams = new URLSearchParams(window.location.search)
-    const showSantaParam = urlParams.get('showSanta')
-    const santaCaught = localStorage.getItem('santaClicked')
+    const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
+    const santaCaught = localStorage.getItem(STORAGE_KEYS.SANTA_CLICKED)
 
     console.log('Проверка состояния виджета:')
     console.log('- showSanta параметр:', showSantaParam)
     console.log('- santaClicked в localStorage:', santaCaught)
 
-    // Случай 1: ?showSanta=false ИЛИ Санта уже была поймана
+    // Случай 1: ?showSanta=false ИЛИ Санта уже была поймана (Группа 3)
     if (showSantaParam === 'false' || santaCaught === 'true') {
-      console.log('Режим: Праздничная версия БЕЗ Санты')
+      console.log('Режим: Праздничная версия БЕЗ Санты (Группа 3)')
       activatePartyMode(false)
-      return 'party-no-santa'
+      return WIDGET_STATES.PARTY_NO_SANTA
     }
 
     // Случай 2: Стандартный режим (Группа 1)
-    console.log('Режим: Стандартный (со звездой)')
-    return 'default'
+    console.log('Режим: Стандартный (со звездой) - Группа 1')
+    return WIDGET_STATES.DEFAULT
   }
 
   // Активировать праздничный режим
@@ -154,7 +195,7 @@
     soundToggle.addEventListener('click', toggleSound)
 
     // Обработчик для клика на звезду (только если в стандартном режиме)
-    if (widgetState === 'default' && starClickZone) {
+    if (widgetState === WIDGET_STATES.DEFAULT && starClickZone) {
       starClickZone.addEventListener('click', handleStarClick)
       console.log('Обработчик клика на звезду добавлен')
     }
@@ -191,13 +232,7 @@
 
       // Отправляем событие sound_off родителю
       if (window.parent && window.parent !== window) {
-        window.parent.postMessage(
-          {
-            type: 'sound_off',
-            source: 'santa-vegas-widget',
-          },
-          '*'
-        )
+        window.parent.postMessage(EVENTS.SOUND_OFF, '*')
       }
     } else {
       // Включаем звук (с атрибутом loop - будет зацикливаться автоматически)
@@ -212,13 +247,7 @@
 
           // Отправляем событие sound_on родителю
           if (window.parent && window.parent !== window) {
-            window.parent.postMessage(
-              {
-                type: 'sound_on',
-                source: 'santa-vegas-widget',
-              },
-              '*'
-            )
+            window.parent.postMessage(EVENTS.SOUND_ON, '*')
           }
         })
         .catch(err => {
@@ -237,7 +266,7 @@
     }
 
     // Проверяем, не была ли Санта уже поймана
-    const santaCaught = localStorage.getItem('santaClicked')
+    const santaCaught = localStorage.getItem(STORAGE_KEYS.SANTA_CLICKED)
     if (santaCaught === 'true') {
       console.log('Санта уже была поймана ранее')
       return
@@ -314,7 +343,7 @@
     console.log('🎅 Санту поймали! Обрабатываем клик')
 
     // Сохраняем в localStorage
-    localStorage.setItem('santaClicked', 'true')
+    localStorage.setItem(STORAGE_KEYS.SANTA_CLICKED, 'true')
     console.log('Сохранено в localStorage: santaClicked = true')
 
     // Мгновенно скрываем кликабельную зону
@@ -332,13 +361,7 @@
     // Отправляем сообщение родительскому окну
     if (window.parent && window.parent !== window) {
       console.log('Отправляем santaClicked родителю')
-      window.parent.postMessage(
-        {
-          type: 'santaClicked',
-          source: 'santa-vegas-widget',
-        },
-        '*'
-      )
+      window.parent.postMessage(EVENTS.SANTA_CLICKED, '*')
     } else {
       console.log('Виджет открыт напрямую - алерт для теста')
       alert('🎅 Вы поймали Санту!')
