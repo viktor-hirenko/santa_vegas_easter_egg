@@ -1,0 +1,219 @@
+// Santa Vegas Widget - основная логика
+(function() {
+    'use strict';
+    
+    // Элементы DOM
+    const soundToggle = document.getElementById('soundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+    const bgMusic = document.getElementById('bgMusic');
+    const santaAnimationWrapper = document.getElementById('santaAnimationWrapper');
+    const santaAnimation = document.getElementById('santaAnimation');
+    const santaClickZone = document.getElementById('santaClickZone');
+    
+    // Состояние
+    let isSoundPlaying = false;
+    let canShowSanta = false;
+    let isAnimationPlaying = false;
+    let clickZoneTimeout = null;
+    
+    // Проверяем query параметр для показа Санты
+    function checkShowSantaFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const showSantaParam = urlParams.get('showSanta');
+        
+        console.log('Query параметр showSanta:', showSantaParam);
+        
+        // Если параметр есть и равен 'true', показываем Санту
+        if (showSantaParam !== null) {
+            canShowSanta = showSantaParam === 'true';
+        } else {
+            // По умолчанию показываем, если параметр не указан
+            canShowSanta = true;
+        }
+        
+        console.log('canShowSanta установлен в:', canShowSanta);
+        return canShowSanta;
+    }
+    
+    // Инициализация при загрузке
+    function init() {
+        // Скрываем Санту при загрузке
+        santaAnimationWrapper.style.display = 'none';
+        
+        // Проверяем параметр URL
+        checkShowSantaFromUrl();
+        
+        // Настройка обработчиков событий
+        soundToggle.addEventListener('click', toggleSound);
+        
+        // Добавляем обработчик клика на кликабельную зону
+        santaClickZone.addEventListener('click', function(event) {
+            console.log('Клик по зоне ловли Санты');
+            handleSantaClick(event);
+        });
+        
+        // Слушаем сообщения от родительского окна (для santaClicked)
+        window.addEventListener('message', handleParentMessage);
+        
+        console.log('Инициализация завершена');
+    }
+    
+    // Обработка сообщений от родительского окна (только для santaClicked)
+    function handleParentMessage(event) {
+        // Здесь можно обрабатывать другие сообщения от родителя при необходимости
+        console.log('Получено сообщение от родителя:', event.data);
+    }
+    
+    // Переключение звука (музыка независима от анимации Санты)
+    function toggleSound() {
+        console.log('toggleSound вызвана, isSoundPlaying:', isSoundPlaying);
+        
+        if (isSoundPlaying) {
+            // Выключаем звук
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            isSoundPlaying = false;
+            soundIcon.src = 'img/sound_off.svg';
+            soundIcon.alt = 'Звук вимкнено';
+            console.log('Звук выключен');
+        } else {
+            // Включаем звук (с атрибутом loop - будет зацикливаться автоматически)
+            console.log('Пытаемся включить звук');
+            bgMusic.play().then(() => {
+                isSoundPlaying = true;
+                soundIcon.src = 'img/sound_on.svg';
+                soundIcon.alt = 'Звук увімкнено';
+                console.log('Звук включен и будет зациклен. canShowSanta:', canShowSanta);
+                
+                // Если разрешено показывать Санту, запускаем анимацию (только один раз)
+                if (canShowSanta) {
+                    console.log('Условия выполнены, вызываем startSantaAnimation');
+                    startSantaAnimation();
+                } else {
+                    console.log('Санта отключена через URL параметр');
+                }
+            }).catch(err => {
+                console.error('Ошибка воспроизведения звука:', err);
+            });
+        }
+    }
+    
+    // Запуск анимации Санты
+    function startSantaAnimation() {
+        console.log('startSantaAnimation вызвана');
+        
+        if (isAnimationPlaying) {
+            console.log('Анимация уже играет');
+            return;
+        }
+        
+        isAnimationPlaying = true;
+        console.log('Запускаем анимацию');
+        
+        // Показываем wrapper с анимацией
+        santaAnimationWrapper.style.display = 'block';
+        santaAnimationWrapper.style.opacity = '1';
+        
+        // Показываем кликабельную зону
+        santaClickZone.style.display = 'block';
+        console.log('Кликабельная зона показана');
+        
+        // Перезагружаем SVG для перезапуска анимации
+        const currentSrc = santaAnimation.data;
+        console.log('Перезагружаем SVG:', currentSrc);
+        santaAnimation.data = '';
+        // Небольшая задержка перед перезагрузкой
+        setTimeout(() => {
+            santaAnimation.data = currentSrc;
+            console.log('SVG перезагружен');
+        }, 10);
+        
+        // Скрываем кликабельную зону через 5 секунд
+        if (clickZoneTimeout) {
+            clearTimeout(clickZoneTimeout);
+        }
+        clickZoneTimeout = setTimeout(() => {
+            console.log('Скрываем кликабельную зону (5 сек прошло)');
+            santaClickZone.style.display = 'none';
+        }, 5000);
+        
+        // Скрываем анимацию после завершения (5 секунд по длительности в SVG)
+        setTimeout(() => {
+            handleAnimationEnd();
+        }, 5000);
+    }
+    
+    // Обработка окончания анимации
+    function handleAnimationEnd() {
+        console.log('handleAnimationEnd вызвана');
+        
+        // Скрываем wrapper
+        console.log('Скрываем wrapper и кликабельную зону');
+        santaAnimationWrapper.style.display = 'none';
+        santaAnimationWrapper.style.opacity = '0';
+        santaClickZone.style.display = 'none';
+        
+        // Очищаем таймаут если он еще активен
+        if (clickZoneTimeout) {
+            clearTimeout(clickZoneTimeout);
+            clickZoneTimeout = null;
+        }
+        
+        isAnimationPlaying = false;
+    }
+    
+    // Обработка клика на Санту (в кликабельной зоне)
+    function handleSantaClick(event) {
+        console.log('handleSantaClick вызвана, isAnimationPlaying:', isAnimationPlaying);
+        
+        if (!isAnimationPlaying) {
+            console.log('Клик игнорирован - анимация не играет');
+            return;
+        }
+        
+        if (event) {
+            event.stopPropagation();
+        }
+        
+        console.log('🎅 Санту поймали! Обрабатываем клик');
+        
+        // Мгновенно скрываем кликабельную зону
+        santaClickZone.style.display = 'none';
+        
+        // Очищаем таймаут зоны
+        if (clickZoneTimeout) {
+            clearTimeout(clickZoneTimeout);
+            clickZoneTimeout = null;
+        }
+        
+        // Добавляем класс для анимации вспышки
+        santaAnimationWrapper.classList.add('clicked');
+        
+        // Отправляем сообщение родительскому окну
+        if (window.parent && window.parent !== window) {
+            console.log('Отправляем santaClicked родителю');
+            window.parent.postMessage({
+                type: 'santaClicked',
+                source: 'santa-vegas-widget'
+            }, '*');
+        } else {
+            console.log('Виджет открыт напрямую - алерт для теста');
+            alert('🎅 Вы поймали Санту!');
+        }
+        
+        // Удаляем Санту после анимации вспышки
+        setTimeout(() => {
+            console.log('Убираем Санту после вспышки');
+            santaAnimationWrapper.classList.remove('clicked');
+            handleAnimationEnd();
+        }, 500);
+    }
+    
+    // Запуск инициализации после загрузки DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+

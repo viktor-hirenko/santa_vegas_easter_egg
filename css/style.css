@@ -1,0 +1,169 @@
+/* Сброс и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Основной контейнер виджета */
+.widget-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Контейнер логотипа */
+.logo-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.logo {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Wrapper для анимации Санты */
+.santa-animation-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.santa-animation-wrapper[style*="display: none"] {
+    pointer-events: none;
+}
+
+/* Кликабельная зона для ловли Санты */
+.santa-click-zone {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 50%;
+    z-index: 20;
+}
+
+
+
+/* SVG объект с анимацией Санты */
+.santa-animation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+    cursor: pointer;
+    border: none;
+}
+
+/* Анимация вспышки при клике */
+@keyframes flash {
+    0% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+    50% {
+        opacity: 1;
+        filter: brightness(3) drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+    }
+    100% {
+        opacity: 0;
+        filter: brightness(5) drop-shadow(0 0 40px rgba(255, 255, 255, 1));
+    }
+}
+
+.santa-animation-wrapper.clicked {
+    animation: flash 0.5s ease-out forwards;
+}
+
+/* Кнопка управления звуком */
+.sound-toggle {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    background: transparent;
+    transition: transform 0.3s ease;
+}
+
+
+
+
+
+.sound-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Hover эффект для кнопки звука */
+.sound-toggle:hover {
+    transform: scale(1.1);
+}
+
+.sound-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .sound-toggle {
+        width: 25px;
+        height: 25px;
+        bottom: 8px;
+        right: 8px;
+    }
+}
+
+/* Анимация появления кнопки звука */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.sound-toggle {
+    animation: fadeIn 0.5s ease-out;
+}
+

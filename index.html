@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Vegas Widget</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Основной контейнер виджета -->
+    <div class="widget-container">
+        <!-- Логотип -->
+        <div class="logo-container">
+            <img src="img/santa_vegas_827x256.svg" alt="Santa Vegas" class="logo">
+        </div>
+
+        <!-- SVG контейнер для анимации Санты -->
+        <div class="santa-animation-wrapper" id="santaAnimationWrapper">
+            <object id="santaAnimation" class="santa-animation-container" data="img/santa_animation.svg?v=1"
+                type="image/svg+xml">
+                <!-- Fallback -->
+                <img src="img/santa.webp" alt="Santa" />
+            </object>
+        </div>
+
+        <!-- Кликабельная зона для ловли Санты -->
+        <div class="santa-click-zone" id="santaClickZone" style="display: none;"></div>
+
+        <!-- Кнопка управления звуком -->
+        <button class="sound-toggle" id="soundToggle" aria-label="Управління звуком">
+            <img src="img/sound_off.svg" alt="Звук вимкнено" class="sound-icon" id="soundIcon">
+        </button>
+
+        <!-- Аудио элемент -->
+        <audio id="bgMusic" loop preload="auto">
+            <source src="sound/music.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script src="js/widget.js"></script>
+</body>
+
+</html>
