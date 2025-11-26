@@ -1,45 +1,103 @@
 <!DOCTYPE html>
 <html lang="uk">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Santa Vegas Widget</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-<body>
+  <body>
     <!-- Основной контейнер виджета -->
     <div class="widget-container">
-        <!-- Логотип -->
-        <div class="logo-container">
-            <img src="img/santa_vegas_827x256.svg" alt="Santa Vegas" class="logo">
+      <!-- Логотип (слоевая структура) -->
+      <div class="logo-container">
+        <!-- Слой 1: Праздничная подсветка (ПОД базовым лого, скрыта) -->
+        <img
+          id="partyLight"
+          src="img/new/light_827x256_party.svg"
+          alt=""
+          class="logo-layer party-light"
+          style="display: none"
+        />
+
+        <!-- Слой 2: Анимация Санты (ПОД базовым лого, скрыта) -->
+        <div
+          class="santa-animation-wrapper"
+          id="santaAnimationWrapper"
+          style="display: none"
+        >
+          <object
+            id="santaAnimation"
+            class="santa-animation-container"
+            data="img/new/santa_vegas_827x256_santa.svg?v=1"
+            type="image/svg+xml"
+          >
+            <img src="img/santa.webp" alt="Santa" />
+          </object>
         </div>
 
-        <!-- SVG контейнер для анимации Санты -->
-        <div class="santa-animation-wrapper" id="santaAnimationWrapper">
-            <object id="santaAnimation" class="santa-animation-container" data="img/santa_animation.svg?v=1"
-                type="image/svg+xml">
-                <!-- Fallback -->
-                <img src="img/santa.webp" alt="Santa" />
-            </object>
-        </div>
+        <!-- Слой 3: Базовый логотип -->
+        <img
+          id="baseLogoLayer"
+          src="img/new/logo_827x256_base.svg"
+          alt="Santa Vegas"
+          class="logo-layer base-logo"
+        />
 
-        <!-- Кликабельная зона для ловли Санты -->
-        <div class="santa-click-zone" id="santaClickZone" style="display: none;"></div>
+        <!-- Слой 4: Гирлянды (стандартные по умолчанию) -->
+        <img
+          id="lampsLayer"
+          src="img/new/lamps_827x256_default.svg"
+          alt=""
+          class="logo-layer lamps-layer"
+        />
 
-        <!-- Кнопка управления звуком -->
-        <button class="sound-toggle" id="soundToggle" aria-label="Управління звуком">
-            <img src="img/sound_off.svg" alt="Звук вимкнено" class="sound-icon" id="soundIcon">
-        </button>
+        <!-- Слой 5: Звезда (видна по умолчанию) -->
+        <img
+          id="starLayer"
+          src="img/new/santa_vegas_827x256_star.svg"
+          alt=""
+          class="logo-layer star-layer"
+        />
 
-        <!-- Аудио элемент -->
-        <audio id="bgMusic" loop preload="auto">
-            <source src="sound/music.mp3" type="audio/mpeg">
-        </audio>
+        <!-- Кликабельная зона для звезды -->
+        <div id="starClickZone" class="star-click-zone"></div>
+      </div>
+
+      <!-- Кликабельные зоны для ловли Санты -->
+      <div
+        class="santa-click-zone santa-click-zone-top"
+        id="santaClickZoneTop"
+        style="display: none"
+      ></div>
+
+      <div
+        class="santa-click-zone santa-click-zone-bottom"
+        id="santaClickZoneBottom"
+        style="display: none"
+      ></div>
+
+      <!-- Кнопка управления звуком -->
+      <button
+        class="sound-toggle"
+        id="soundToggle"
+        aria-label="Управління звуком"
+      >
+        <img
+          src="img/sound_off.svg"
+          alt="Звук вимкнено"
+          class="sound-icon"
+          id="soundIcon"
+        />
+      </button>
+
+      <!-- Аудио элемент -->
+      <audio id="bgMusic" loop preload="auto">
+        <source src="sound/music.mp3" type="audio/mpeg" />
+      </audio>
     </div>
 
     <script src="js/widget.js"></script>
-</body>
-
+  </body>
 </html>
