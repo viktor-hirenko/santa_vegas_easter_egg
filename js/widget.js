@@ -50,10 +50,7 @@
   const bgMusic = document.getElementById('bgMusic')
   const santaAnimationWrapper = document.getElementById('santaAnimationWrapper')
   const santaAnimation = document.getElementById('santaAnimation')
-  const santaClickZoneBottom = document.getElementById('santaClickZoneBottom')
-  const santaClickZoneTop = document.getElementById('santaClickZoneTop')
-  const santaClickZoneTopRight = document.getElementById('santaClickZoneTopRight')
-  const santaClickZoneTopLeft = document.getElementById('santaClickZoneTopLeft')
+  const santaDynamicZone = document.getElementById('santaDynamicZone')
   const starLayer = document.getElementById('starLayer')
   const starClickZone = document.getElementById('starClickZone')
   const lampsLayer = document.getElementById('lampsLayer')
@@ -67,109 +64,163 @@
   let clickZoneTimeout = null
   let isStarClicked = false
 
-  // Вспомогательные переменные для управления зонами
-  let zoneTimingIntervals = []
+  // Вспомогательные переменные для управления анимацией зоны
+  let zoneAnimationId = null
+  let zoneStartTime = null
 
-  // Вспомогательная функция для управления зонами Санты
-  function setSantaClickZonesDisplay(display) {
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = display
-    if (santaClickZoneTop) santaClickZoneTop.style.display = display
-    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = display
-    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = display
+  // Параметры движения кликабельной зоны (легко настраивать вручную)
+  const ZONE_BOTTOM = {
+    startTime: 0, // когда начинается нижняя фаза
+    duration: 4000, // сколько длится фаза
+    startX: 65,
+    endX: 30,
+    y: 60,
+    speed: 1,
+    width: 20,
+    height: 50,
+    fallback: {
+      x: 30, // позиция для резкого возврата
+      y: 0,
+      delay: 0, // сколько мс держать перед окончательным скрытием
+    },
   }
 
-  // Функция для отображения только одной зоны
-  function showBottomZoneOnly() {
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'block'
-    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
-    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
-    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
+  const ZONE_TOP = {
+    startTime: 5300, // задержка перед запуском верхней фазы
+    duration: 7200, // сколько длится фаза
+    startX: 6,
+    endX: 65,
+    y: 0,
+    speed: 1.44,
+    width: 20,
+    height: 30,
+    fallback: {
+      x: 17,
+      y: 0,
+      delay: 1400,
+    },
   }
 
-  function showTopZoneOnly() {
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
-    if (santaClickZoneTop) santaClickZoneTop.style.display = 'block'
-    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
-    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
+  // Функция для анимации движения динамической зоны
+  function animateSantaZone(timestamp) {
+    if (!zoneStartTime) zoneStartTime = timestamp
+    const elapsed = timestamp - zoneStartTime // время в мс от начала анимации
+
+    const bottomEnd = ZONE_BOTTOM.startTime + ZONE_BOTTOM.duration
+    const bottomFallbackEnd = bottomEnd + ZONE_BOTTOM.fallback.delay
+    const topEnd = ZONE_TOP.startTime + ZONE_TOP.duration
+    const topFallbackEnd = topEnd + ZONE_TOP.fallback.delay
+    const animationEnd = Math.max(bottomFallbackEnd, topFallbackEnd)
+
+    if (elapsed >= animationEnd) {
+      // Анімація закінчилась
+      if (santaDynamicZone) {
+        santaDynamicZone.style.display = 'none'
+      }
+      zoneAnimationId = null
+      zoneStartTime = null
+      return
+    }
+
+    // ============================================================
+    // 🔻 ФАЗА 1: ВНИЗУ (справа → ліво)
+    // ============================================================
+    if (elapsed >= ZONE_BOTTOM.startTime && elapsed < bottomEnd) {
+      const phaseElapsed = elapsed - ZONE_BOTTOM.startTime
+      const progress = Math.min((phaseElapsed * ZONE_BOTTOM.speed) / ZONE_BOTTOM.duration, 1)
+      const xPercent = ZONE_BOTTOM.startX - progress * (ZONE_BOTTOM.startX - ZONE_BOTTOM.endX)
+      const yPercent = ZONE_BOTTOM.y
+
+      if (santaDynamicZone) {
+        santaDynamicZone.style.display = 'block'
+        santaDynamicZone.style.left = `${xPercent}%`
+        santaDynamicZone.style.top = `${yPercent}%`
+        santaDynamicZone.style.width = `${ZONE_BOTTOM.width}%`
+        santaDynamicZone.style.height = `${ZONE_BOTTOM.height}%`
+        santaDynamicZone.style.opacity = '1'
+      }
+    }
+
+    // ============================================================
+    // ⏸️ ПАУЗА (зона скрыта)
+    // ============================================================
+    else if (elapsed >= bottomEnd && elapsed < bottomFallbackEnd) {
+      if (santaDynamicZone) {
+        santaDynamicZone.style.display = 'block'
+        santaDynamicZone.style.left = `${ZONE_BOTTOM.fallback.x}%`
+        santaDynamicZone.style.top = `${ZONE_BOTTOM.fallback.y}%`
+        santaDynamicZone.style.width = `${ZONE_BOTTOM.width}%`
+        santaDynamicZone.style.height = `${ZONE_BOTTOM.height}%`
+        santaDynamicZone.style.opacity = '1'
+      }
+    } else if (elapsed >= bottomFallbackEnd && elapsed < ZONE_TOP.startTime) {
+      if (santaDynamicZone) {
+        santaDynamicZone.style.opacity = '0'
+      }
+    }
+    // ============================================================
+    // 🔼 ФАЗА 2: ВГОРІ (зліва → направо)
+    // ============================================================
+    else if (elapsed >= ZONE_TOP.startTime && elapsed < topEnd) {
+      const phase2Elapsed = elapsed - ZONE_TOP.startTime
+      const progress = Math.min((phase2Elapsed * ZONE_TOP.speed) / ZONE_TOP.duration, 1) // прогресс 0→1
+
+      const xPercent = ZONE_TOP.startX + progress * (ZONE_TOP.endX - ZONE_TOP.startX)
+      const yPercent = ZONE_TOP.y
+
+      if (santaDynamicZone) {
+        santaDynamicZone.style.display = 'block'
+        santaDynamicZone.style.left = `${xPercent}%`
+        santaDynamicZone.style.top = `${yPercent}%`
+        santaDynamicZone.style.width = `${ZONE_TOP.width}%`
+        santaDynamicZone.style.height = `${ZONE_TOP.height}%`
+        santaDynamicZone.style.opacity = '1'
+      }
+    } else if (elapsed >= topEnd && elapsed < topFallbackEnd) {
+      if (santaDynamicZone) {
+        santaDynamicZone.style.display = 'block'
+        santaDynamicZone.style.left = `${ZONE_TOP.fallback.x}%`
+        santaDynamicZone.style.top = `${ZONE_TOP.fallback.y}%`
+        santaDynamicZone.style.width = `${ZONE_TOP.width}%`
+        santaDynamicZone.style.height = `${ZONE_TOP.height}%`
+        santaDynamicZone.style.opacity = '1'
+      }
+    }
+
+    // Продовжуємо анімацію
+    zoneAnimationId = requestAnimationFrame(animateSantaZone)
   }
 
-  function showTopRightZoneOnly() {
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
-    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
-    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'block'
-    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
+  // Функция для запуска анимации зоны
+  function startSantaZoneAnimation() {
+    console.log('Запускаємо анімацію динамічної зони')
+
+    // Скидаємо попередню анімацію якщо була
+    if (zoneAnimationId) {
+      cancelAnimationFrame(zoneAnimationId)
+      zoneAnimationId = null
+    }
+
+    zoneStartTime = null
+
+    // Запускаємо нову анімацію
+    zoneAnimationId = requestAnimationFrame(animateSantaZone)
   }
 
-  function showTopLeftZoneOnly() {
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
-    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
-    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
-    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'block'
-  }
+  // Функция для остановки анимации зоны
+  function stopSantaZoneAnimation() {
+    console.log('Зупиняємо анімацію динамічної зони')
 
-  // Функция для управления динамическим отображением зон в зависимости от позиции Санты
-  function manageSantaClickZones() {
-    console.log('Управляем динамическим отображением зон Санты')
+    if (zoneAnimationId) {
+      cancelAnimationFrame(zoneAnimationId)
+      zoneAnimationId = null
+    }
 
-    // Очищаем старые таймеры если они были
-    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
-    zoneTimingIntervals = []
+    zoneStartTime = null
 
-    // Санта летит внизу (0-4 сек) - показываем нижнюю зону
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('0-4 сек: Санта летит внизу - показываем нижнюю зону')
-        showBottomZoneOnly()
-      }, 0)
-    )
-
-    // На 4 секунде скрываем нижнюю зону (все зоны скрыты)
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('4 сек: Скрываем нижнюю зону - пауза перед верхними')
-        setSantaClickZonesDisplay('none')
-      }, 5000)
-    )
-
-    // Санта вверху - показываем длинную верхнюю зону (4.5-8 сек)
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('4.5-8 сек: Санта вверху - показываем длинную верхнюю зону')
-        showTopZoneOnly()
-      }, 5500)
-    )
-
-    // На 8 секунде скрываем длинную зону (пауза перед правой)
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('8 сек: Скрываем длинную зону - пауза перед правой')
-        setSantaClickZonesDisplay('none')
-      }, 11000)
-    )
-
-    // Санта справа вверху (8.5-11 сек) - показываем правую верхнюю зону через 500мс задержки
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('8.5-11 сек: Санта справа вверху - показываем правую зону')
-        showTopRightZoneOnly()
-      }, 11500)
-    )
-
-    // На 11 секунде скрываем правую зону (пауза перед левой)
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('11 сек: Скрываем правую зону - пауза перед левой')
-        setSantaClickZonesDisplay('none')
-      }, 12500)
-    )
-
-    // Санта зліва вверху (11.5-14 сек) - показываем левую верхнюю зону через 500мс задержки
-    zoneTimingIntervals.push(
-      setTimeout(() => {
-        console.log('11.5-14 сек: Санта зліва вверху - показываем левую зону')
-        showTopLeftZoneOnly()
-      }, 12500)
-    )
+    if (santaDynamicZone) {
+      santaDynamicZone.style.display = 'none'
+    }
   }
 
   // Проверяем query параметр для показа Санты
@@ -319,22 +370,10 @@
       console.log('Обработчик клика на звезду добавлен')
     }
 
-    // Добавляем обработчики клика на кликабельные зоны Санты
-    if (santaClickZoneBottom) {
-      santaClickZoneBottom.addEventListener('click', function (event) {
-        console.log('Клик по нижней зоне ловли Санты')
-        handleSantaClick(event)
-      })
-    }
-    if (santaClickZoneTopRight) {
-      santaClickZoneTopRight.addEventListener('click', function (event) {
-        console.log('Клик по правой верхней зоне ловли Санты')
-        handleSantaClick(event)
-      })
-    }
-    if (santaClickZoneTopLeft) {
-      santaClickZoneTopLeft.addEventListener('click', function (event) {
-        console.log('Клик по левой верхней зоне ловли Санты')
+    // Добавляем обработчик клика на динамическую зону Санты
+    if (santaDynamicZone) {
+      santaDynamicZone.addEventListener('click', function (event) {
+        console.log('Клик по динамічній зоні ловлі Санти')
         handleSantaClick(event)
       })
     }
@@ -404,9 +443,9 @@
     santaAnimationWrapper.style.display = 'block'
     santaAnimationWrapper.style.opacity = '1'
 
-    // Запускаем динамическое управление кликабельными зонами
-    manageSantaClickZones()
-    console.log('Динамическое управление зонами запущено')
+    // Запускаем динамическую анимацию кликабельной зоны
+    startSantaZoneAnimation()
+    console.log('Динамическая анімація зони запущена')
 
     // Перезагружаем SVG для перезапуска анимации
     const currentSrc = santaAnimation.data
@@ -424,7 +463,7 @@
     }
     clickZoneTimeout = setTimeout(() => {
       console.log('Скрываем кликабельную зону (14 сек прошло)')
-      setSantaClickZonesDisplay('none')
+      stopSantaZoneAnimation()
     }, 14000)
 
     // Скрываем анимацию после завершения (14 секунд - полная длительность SVG)
@@ -441,17 +480,13 @@
     console.log('Скрываем wrapper и кликабельную зону')
     santaAnimationWrapper.style.display = 'none'
     santaAnimationWrapper.style.opacity = '0'
-    setSantaClickZonesDisplay('none')
+    stopSantaZoneAnimation()
 
     // Очищаем таймаут если он еще активен
     if (clickZoneTimeout) {
       clearTimeout(clickZoneTimeout)
       clickZoneTimeout = null
     }
-
-    // Очищаем таймеры управления зонами
-    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
-    zoneTimingIntervals = []
 
     isAnimationPlaying = false
   }
@@ -475,18 +510,14 @@
     localStorage.setItem(STORAGE_KEYS.SANTA_CLICKED, 'true')
     console.log('Сохранено в localStorage: santaClicked = true')
 
-    // Мгновенно скрываем кликабельную зону
-    setSantaClickZonesDisplay('none')
+    // Мгновенно скрываем кликабельную зону и останавливаем анимацию
+    stopSantaZoneAnimation()
 
     // Очищаем таймауты зон
     if (clickZoneTimeout) {
       clearTimeout(clickZoneTimeout)
       clickZoneTimeout = null
     }
-
-    // Очищаем таймеры управления зонами
-    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
-    zoneTimingIntervals = []
 
     // Добавляем класс для анимации вспышки
     santaAnimationWrapper.classList.add('clicked')
