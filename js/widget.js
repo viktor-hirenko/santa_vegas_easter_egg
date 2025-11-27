@@ -64,7 +64,6 @@
 
   // Состояние
   let isSoundPlaying = false
-  let canShowSanta = false
   let isAnimationPlaying = false
   let isStarClicked = false
   let showDebugZones = false // Флаг для показа визуализации кликабельных зон
@@ -399,25 +398,6 @@
     handleSantaClick(event) // Вызываем основную функцию обработки клика на Санту
   }
 
-  // Проверяем query параметр для показа Санты
-  function checkShowSantaFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
-
-    console.log('Query параметр showSanta:', showSantaParam)
-
-    // Если параметр есть и равен 'true', показываем Санту
-    if (showSantaParam !== null) {
-      canShowSanta = showSantaParam === 'true'
-    } else {
-      // По умолчанию показываем, если параметр не указан
-      canShowSanta = true
-    }
-
-    console.log('canShowSanta установлен в:', canShowSanta)
-    return canShowSanta
-  }
-
   // Обработка клика на звезду
   function handleStarClick() {
     console.log('handleStarClick вызвана, isStarClicked:', isStarClicked)
@@ -525,15 +505,6 @@
     // Показать праздничную подсветку
     if (partyLight) {
       partyLight.style.display = 'block'
-    }
-
-    // Установить флаг для показа Санты
-    if (showSanta) {
-      console.log('Режим с Сантой: Санта будет показана')
-      canShowSanta = true
-    } else {
-      console.log('Режим без Санты: Санта не будет показана')
-      canShowSanta = false
     }
   }
 
