@@ -133,9 +133,9 @@
         transform: translateY(-2px);
       }
 
-      .demo-controls input[type='checkbox'] {
-        width: 20px;
-        height: 20px;
+      .demo-controls input {
+        width: 15px;
+        height: 15px;
         cursor: pointer;
       }
 
@@ -220,15 +220,15 @@
             <div class="demo-controls">
               <label>
                 <input type="radio" name="widgetGroup" value="group1" checked />
-                <span>Група 1: Стандартний режим (зі звездою)</span>
+                <span>Група 1: Стандартний режим</span>
               </label>
               <label>
                 <input type="radio" name="widgetGroup" value="group2" />
-                <span>Група 2: Активна пасхалка (Санта)</span>
+                <span>Група 2: Активна пасхалка</span>
               </label>
               <label>
                 <input type="radio" name="widgetGroup" value="group3" />
-                <span>Група 3: Поймана пасхалка (без Санти)</span>
+                <span>Група 3: Спіймана пасхалка</span>
               </label>
               <label>
                 <input type="checkbox" id="debugZones" />
@@ -258,7 +258,7 @@
                 "
               ></iframe>
 
-              <!-- Debug zones overlay -->
+              <!-- Оверлей для отладки кликабельных зон -->
               <div
                 id="debugOverlay"
                 style="
@@ -270,137 +270,22 @@
                   height: 100%;
                   pointer-events: none;
                   z-index: 999;
+                  container-type: size;
                 "
               >
-                <!-- Star Click Zone (красний) -->
+                <!-- Кликабельная зона звезды (красная) -->
                 <div
                   style="
                     position: absolute;
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -57%);
-                    width: 13cqw;
+                    width: min(18cqw, 180px);
                     height: min(22cqw, 180px);
                     background: rgba(255, 0, 0, 0.3);
                     border: 2px solid red;
                   "
-                >
-                  <div
-                    style="
-                      /* background: red; */
-                      color: white;
-                      padding: 4px 8px;
-                      font-size: 11px;
-                      font-weight: bold;
-                      border-radius: 3px;
-                    "
-                  >
-                    Star
-                  </div>
-                </div>
-                <!-- Santa Top Zone (зелений - довга) -->
-                <div
-                  style="
-                    position: absolute;
-                    top: 0;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 70%;
-                    height: 30%;
-                    background: rgba(0, 255, 0, 0.2);
-                    border: 2px solid lime;
-                  "
-                >
-                  <div
-                    style="
-                      color: white;
-                      padding: 4px 8px;
-                      font-size: 11px;
-                      font-weight: bold;
-                      border-radius: 3px;
-                    "
-                  >
-                    Santa Top (long)
-                  </div>
-                </div>
-                <!-- Santa Top Right Zone (темно-зелений) -->
-                <div
-                  style="
-                    position: absolute;
-                    top: 0;
-                    right: 23%;
-                    display: flex;
-                    justify-content: center;
-                    width: 10%;
-                    height: 25%;
-                    background: rgba(0, 128, 0, 0.2);
-                    border: 2px solid darkgreen;
-                  "
-                >
-                  <div
-                    style="
-                      color: white;
-                      padding: 4px 8px;
-                      font-size: 11px;
-                      font-weight: bold;
-                      border-radius: 3px;
-                    "
-                  >
-                    Santa Top Right
-                  </div>
-                </div>
-                <!-- Santa Top Left Zone (жовтий) -->
-                <div
-                  style="
-                    position: absolute;
-                    top: 0;
-                    left: 23%;
-                    display: flex;
-                    justify-content: center;
-                    width: 10%;
-                    height: 25%;
-                    background: rgba(255, 255, 0, 0.2);
-                    border: 2px solid yellow;
-                  "
-                >
-                  <div
-                    style="
-                      color: white;
-                      padding: 4px 8px;
-                      font-size: 11px;
-                      font-weight: bold;
-                      border-radius: 3px;
-                    "
-                  >
-                    Santa Top Left
-                  </div>
-                </div>
-                <!-- Santa Bottom Zone (синій) -->
-                <div
-                  style="
-                    position: absolute;
-                    bottom: 0;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 40%;
-                    height: 40%;
-                    background: rgba(0, 0, 255, 0.2);
-                    border: 2px solid blue;
-                  "
-                >
-                  <div
-                    style="
-                      /* background: blue; */
-                      color: white;
-                      padding: 4px 8px;
-                      font-size: 11px;
-                      font-weight: bold;
-                      border-radius: 3px;
-                    "
-                  >
-                    Santa Bottom
-                  </div>
-                </div>
+                ></div>
               </div>
             </div>
 
@@ -410,7 +295,7 @@
           </div>
         </div>
 
-        <!-- Інструкція з встраивания -->
+        <!-- Инструкция по встраиванию -->
         <div class="section">
           <h2>📋 Інструкція з встановлення віджета</h2>
 
@@ -419,114 +304,59 @@
             <p>Використовуйте наступний URL для віджета:</p>
             <div class="code-block">
               <code
-                >&lt;iframe
-                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html"
-                style="border: none; background: transparent;" frameborder="0"
-                scrolling="no" &gt;&lt;/iframe&gt;</code
+                >&lt;!-- З анімацією Санти --&gt; &lt;iframe
+                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"
+                style="width: 827px; height: 256px; border: none; background:
+                transparent;" frameborder="0" scrolling="no" &gt;&lt;/iframe&gt;
+                &lt;!-- Без Санти (тільки музика) --&gt; &lt;iframe
+                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"
+                style="width: 827px; height: 256px; border: none; background:
+                transparent;" frameborder="0" scrolling="no"
+                &gt;&lt;/iframe&gt;</code
               >
             </div>
-            <p style="margin-top: 10px">
-              <span class="highlight">background: transparent</span> - для
-              прозорого фону
-            </p>
           </div>
 
           <div class="instruction-box">
-            <h3>2. URL параметри</h3>
-            <ul>
-              <li>
-                <span class="highlight">?showSanta=false</span> - вимикає
-                анімацію Санти (для користувачів, які вже спіймали Санту)
-              </li>
-              <li>
-                Без параметра - віджет працює в стандартному режимі і
-                автоматично визначає поведінку на основі localStorage
-              </li>
-            </ul>
-            <p style="margin-top: 10px">
-              <strong>Для тестової сторінки:</strong>
-            </p>
-            <ul>
-              <li>
-                <span class="highlight">?starClicked=true</span> - емуляція
-                активної пасхалки (Група 2). Використовується тільки для
-                тестування, на проді не потрібен.
-              </li>
-            </ul>
-          </div>
-
-          <div class="instruction-box">
-            <h3>3. localStorage та поведінка віджета</h3>
-            <p>
-              Віджет автоматично зберігає стан взаємодії користувача в
-              localStorage браузера:
-            </p>
-            <ul>
-              <li>
-                <strong>Ключ:</strong>
-                <code>santaClicked</code>
-              </li>
-              <li>
-                <strong>Значення:</strong>
-                <code>"true"</code> - якщо користувач спіймав Санту
-              </li>
-            </ul>
+            <h3>2. Налаштування</h3>
 
             <p style="margin-top: 15px">
-              <strong>Режими роботи віджета:</strong>
+              <strong>URL параметр showSanta:</strong>
             </p>
             <ul>
               <li>
-                <strong>Група 1 (Стандартний режим):</strong> Відображається
-                логотип із зіркою. При кліку на зірку активується праздничний
-                режим і з'являється анімація Санти.
+                <span class="highlight">?showSanta=true</span> - показувати
+                анімацію Санти
               </li>
               <li>
-                <strong>Група 2 (Активна пасхалка):</strong> Після кліку на
-                зірку - альтернативна анімація гірлянд (party mode) та
-                пролітаючий Санта. Користувач може клікнути на Санту щоб його
-                "спіймати".
+                <span class="highlight">?showSanta=false</span> - не показується
+                анімація Санти
               </li>
-              <li>
-                <strong>Група 3 (Поймана пасхалка):</strong> Якщо
-                <code>santaClicked = "true"</code> в localStorage - віджет
-                автоматично відображає праздничний режим БЕЗ анімації Санти.
-                Зірка приховується, клік на неї не викликає Санту.
-              </li>
+              <li>Без параметра - показується Санта за замовчуванням</li>
             </ul>
-
-            <p style="margin-top: 15px">
-              <strong>⚠️ Важливо:</strong> Після того як користувач спіймав
-              Санту, запис <code>santaClicked: "true"</code> залишається в
-              localStorage назавжди. При наступних відвідуваннях сторінки віджет
-              автоматично переходить у режим Група 3 (праздничний без Санти).
-            </p>
           </div>
 
           <div class="instruction-box">
-            <h3>4. postMessage події</h3>
-            <p>
-              Віджет відправляє події батьківському вікну для аналітики та
-              обробки взаємодій:
-            </p>
+            <h3>3. postMessage події</h3>
+            <p><strong>Віджет відправляє:</strong></p>
             <ul>
               <li>
                 <code
                   >{ type: 'santaClicked', source: 'santa-vegas-widget' }</code
                 >
-                - користувач спіймав Санту (відправляється один раз за промо)
+                - клік по Санті
               </li>
               <li>
                 <code>{ type: 'sound_on', source: 'santa-vegas-widget' }</code>
-                - користувач увімкнув звук
+                - звук включено
               </li>
               <li>
                 <code>{ type: 'sound_off', source: 'santa-vegas-widget' }</code>
-                - користувач вимкнув звук
+                - звук вимкнено
               </li>
             </ul>
 
-            <p style="margin-top: 15px"><strong>Структура подій:</strong></p>
+            <p style="margin-top: 15px"><strong>Структура події:</strong></p>
             <div class="code-block">
               <code
                 >interface SantaClickedEvent { type: 'santaClicked'; source:
@@ -540,10 +370,21 @@
     </div>
 
     <script>
-      // Очищуємо localStorage при загрузці тестової сторінки для чистого тесту
+      // Очищаем localStorage при загрузке тестовой страницы для чистого теста
       localStorage.removeItem('santaClicked')
 
-      // Логіка тестової сторінки
+      // Константы для postMessage (аналогично виджету)
+      const WIDGET_COMMANDS = {
+        ACTIVATE_GROUP2: {
+          type: 'activateGroup2',
+        },
+        SHOW_DEBUG_ZONES: value => ({
+          type: 'showDebugZones',
+          value: value,
+        }),
+      }
+
+      // Логика тестовой страницы
       const widgetFrame = document.getElementById('widgetFrame')
       const eventLog = document.getElementById('eventLog')
       const groupDescription = document.getElementById('groupDescription')
@@ -551,21 +392,64 @@
       const debugZonesCheckbox = document.getElementById('debugZones')
       const debugOverlay = document.getElementById('debugOverlay')
 
-      // Обработка чекбокса для показа/скрытия клікабельних зон
+      // Функция для обновления URL iframe с учетом группы
+      function updateIframeUrl() {
+        const selectedGroup =
+          document.querySelector('input[name="widgetGroup"]:checked')?.value ||
+          'group1'
+
+        let newUrl = 'index.html'
+        const params = []
+
+        // Группа 2 активируется через postMessage
+        if (selectedGroup === 'group3') {
+          params.push('showSanta=false')
+        }
+
+        if (params.length > 0) {
+          newUrl += '?' + params.join('&')
+        }
+
+        widgetFrame.src = newUrl
+
+        // Отправляем postMessage для активации группы 2 после загрузки iframe
+        if (selectedGroup === 'group2') {
+          widgetFrame.addEventListener(
+            'load',
+            function onIframeLoad() {
+              setTimeout(() => {
+                widgetFrame.contentWindow.postMessage(
+                  WIDGET_COMMANDS.ACTIVATE_GROUP2,
+                  '*'
+                )
+              }, 100)
+              widgetFrame.removeEventListener('load', onIframeLoad)
+            },
+            { once: true }
+          )
+        }
+      }
+
+      // Обработка чекбокса для показа/скрытия кликабельных зон
       debugZonesCheckbox.addEventListener('change', function () {
         debugOverlay.style.display = this.checked ? 'block' : 'none'
+        // Отправляем postMessage в iframe для управления визуализацией зон
+        widgetFrame.contentWindow.postMessage(
+          WIDGET_COMMANDS.SHOW_DEBUG_ZONES(this.checked),
+          '*'
+        )
       })
 
       const groupDescriptions = {
         group1:
-          '<p><strong>Група 1: Стандартний режим</strong></p><p>Користувач бачить стандартний логотип Santa Vegas із підсвіченою зіркою. При кліку на зірку активується режим Group 2.</p>',
+          '<p><strong>Група 1: Стандартний режим</strong></p><p>Користувач бачить стандартний логотип Santa Vegas з зіркою на яку можна клікнути. При кліку на зірку активується режим Group 2.</p>',
         group2:
-          '<p><strong>Група 2: Активна пасхалка</strong></p><p>Після кліку на зірку користувач бачить альтернативну анімацію гірлянд та пролітаючого Санту. Гірлянди змінюються на party версію, з\'являється праздничная підсвітка. Можна виконати клік на Санту щоб його "поймати".</p><p><strong>Важливо:</strong> Коли користувач кликає по Санті, це дія зберігається в localStorage (santaClicked=true). При кліку на зірку більше не буде запускатись анімація Санти, і користувач перейде до Групи 3 (Поймана пасхалка).</p>',
+          '<p><strong>Група 2: Активна пасхалка</strong></p><p>Після кліку на зірку користувач бачить альтернативну анімацію гірлянд та пролітаючого Санту. Гірлянди змінюються на party версію, з\'являється святкова підсвітка. Можна виконати клік на Санту щоб його "впіймати".</p><p><strong>Важливо:</strong> Коли користувач клікає по Санті, це дія зберігається в localStorage (santaClicked=true). При кліку на зірку більше не буде запускатись анімація Санти, і користувач перейде до Групи 3 (Спіймана пасхалка).</p>',
         group3:
-          '<p><strong>Група 3: Поймана пасхалка</strong></p><p>Після того як Санта був пойманий (або при URL параметрі ?showSanta=false), користувач бачить тільки праздничну версію лого без анімації Санти. Звезда та клікабельні зони Санти не видні.</p>',
+          '<p><strong>Група 3: Поймана пасхалка</strong></p><p>Після того як Санта був спійманий (або при URL параметрі ?showSanta=false), користувач бачить тільки святкову версію лого без анімації Санти.</p>',
       }
 
-      // Функція логування подій
+      // Функция логирования событий
       function logEvent(message, type = 'info') {
         const eventDiv = document.createElement('div')
         eventDiv.className = `event ${type}`
@@ -575,16 +459,15 @@
         eventLog.scrollTop = eventLog.scrollHeight
       }
 
-      // Обробка зміни групи
+      // Обработка изменения группы
       groupRadios.forEach(radio => {
         radio.addEventListener('change', function () {
           const selectedGroup = this.value
-          logEvent(`Вибрано: ${this.nextElementSibling.textContent}`, 'info')
 
-          // Оновляємо опис групи
+          // Обновляем описание группы
           groupDescription.innerHTML = groupDescriptions[selectedGroup]
 
-          // Очищуємо кеш браузера та localStorage ДО завантаження нового стану
+          // Очищаем кеш браузера и localStorage ДО загрузки нового состояния
           if ('caches' in window) {
             caches.keys().then(cacheNames => {
               cacheNames.forEach(cacheName => {
@@ -593,66 +476,88 @@
             })
           }
 
-          // ВСЕГДА очищаємо localStorage спочатку
+          // ВСЕГДА очищаем localStorage сначала
           localStorage.removeItem('santaClicked')
-          logEvent('Очищено: кеш браузера та localStorage', 'info')
+          //   logEvent('Очищено: кеш браузера та localStorage', 'info')
 
-          // Встановлюємо стан localStorage ТОЛЬКО для Групи 3
+          // Устанавливаем состояние localStorage ТОЛЬКО для Группы 3
           if (selectedGroup === 'group1') {
             logEvent(
-              'Завантаження Групи 1: стандартний режим (зі звездою)',
+              'Вибрано Група 1: стандартний режим (з зіркою на яку можна клікнути)',
               'info'
             )
           } else if (selectedGroup === 'group2') {
-            // Група 2: активна пасхалка - Санта НЕ поймана
+            // Группа 2: активная пасхалка - Санта НЕ пойман
             logEvent(
-              'Завантаження Групи 2: альтернативна анімація + пролітаючий Санта',
+              'Вибрано Група 2: альтернативна анімація + пролітаючий Санта',
               'info'
             )
           } else if (selectedGroup === 'group3') {
-            // Група 3: поймана пасхалка - Санта вже пойманий
+            // Группа 3: пойманная пасхалка - Санта уже пойман
             localStorage.setItem('santaClicked', 'true')
             logEvent(
-              'Встановлено: santaClicked = true (Санта пойманий)',
+              'Встановлено: santaClicked = true в localStorage (Санта пойманий)',
               'info'
             )
-            logEvent('Завантаження Групи 3: без Санти (режим поймання)', 'info')
+            logEvent(
+              'Вибрано Група 3: альтернативна анімація без пролітаючого Санти і без зірки на яку можна клікнути',
+              'info'
+            )
           }
 
-          // Встановлюємо відповідний URL для iframe
-          let newUrl = 'index.html'
-          if (selectedGroup === 'group2') {
-            // Група 2: звезда уже кликнута, показываем праздничный режим с Сантой
-            newUrl = 'index.html?starClicked=true'
-          } else if (selectedGroup === 'group3') {
-            // Група 3: не показываем Санту
-            newUrl = 'index.html?showSanta=false'
-          }
+          // Обновляем URL iframe с учетом группы
+          updateIframeUrl()
 
-          widgetFrame.src = newUrl
+          // Отправляем текущее состояние debugZones после загрузки iframe
+          widgetFrame.addEventListener('load', function sendDebugZonesState() {
+            widgetFrame.contentWindow.postMessage(
+              WIDGET_COMMANDS.SHOW_DEBUG_ZONES(debugZonesCheckbox.checked),
+              '*'
+            )
+            widgetFrame.removeEventListener('load', sendDebugZonesState)
+          })
         })
       })
 
-      // Слухаємо повідомлення від віджета
+      // Отправляем состояние debugZones при загрузке страницы (если iframe уже загружен)
+      widgetFrame.addEventListener('load', function () {
+        widgetFrame.contentWindow.postMessage(
+          WIDGET_COMMANDS.SHOW_DEBUG_ZONES(debugZonesCheckbox.checked),
+          '*'
+        )
+      })
+
+      // Слушаем сообщения от виджета
       window.addEventListener('message', function (event) {
         if (event.data && event.data.source === 'santa-vegas-widget') {
-          // Клік по Санті
+          // Клик по Санте
           if (event.data.type === 'santaClicked') {
             logEvent('🎅 Санта клікнуто!', 'received')
+            logEvent(
+              'Встановлено: santaClicked = true в localStorage (Санта пойманий)',
+              'info'
+            )
             alert('Ви спіймали Санту! 🎄✨')
           }
-          // Звук включено
+          // Звук включен
           if (event.data.type === 'sound_on') {
             logEvent('🔊 Звук включено', 'received')
           }
-          // Звук вимкнено
+          // Звук выключен
           if (event.data.type === 'sound_off') {
             logEvent('🔇 Звук вимкнено', 'received')
+          }
+          // Скрыть debug overlay звезды
+          if (event.data.type === 'hideStarDebugZone') {
+            const debugOverlay = document.getElementById('debugOverlay')
+            if (debugOverlay) {
+              debugOverlay.style.display = 'none'
+            }
           }
         }
       })
 
-      // Початкове повідомлення
+      // Начальное сообщение
       logEvent('Тестова сторінка готова. Очікуємо події від віджета...', 'info')
     </script>
   </body>

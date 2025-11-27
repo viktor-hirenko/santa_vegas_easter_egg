@@ -94,26 +94,12 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -57%);
-  width: 18cqw;
+  width: min(18cqw, 180px);
   height: min(22cqw, 180px); /* Высота 22% от контейнера не более 180px */
   z-index: 100;
   cursor: pointer;
   /* Для отладки раскомментировать: */
   /* background: rgba(255, 0, 0, 0.3); */
-}
-
-/* Кликабельная динамическая зона для ловли Санты */
-.santa-dynamic-zone {
-  position: absolute;
-  width: 20%;
-  height: 45%;
-  z-index: 20;
-  cursor: pointer;
-  /* Для отладки раскомментировать: */
-  background: rgba(255, 0, 0, 0.3);
-  border: 2px solid red;
-  will-change: transform;
-  transition: opacity 0.3s ease;
 }
 
 /* SVG объект с анимацией Санты */

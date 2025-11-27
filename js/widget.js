@@ -21,15 +21,10 @@
   // URL параметры
   const URL_PARAMS = {
     SHOW_SANTA: 'showSanta',
-    STAR_CLICKED: 'starClicked',
   }
 
   // Сообщения для postMessage
   const EVENTS = {
-    SANTA_CLICKED: {
-      type: 'santaClicked',
-      source: 'santa-vegas-widget',
-    },
     SOUND_ON: {
       type: 'sound_on',
       source: 'santa-vegas-widget',
@@ -38,7 +33,18 @@
       type: 'sound_off',
       source: 'santa-vegas-widget',
     },
+    SANTA_CLICKED: {
+      type: 'santaClicked',
+      source: 'santa-vegas-widget',
+    },
+    HIDE_STAR_DEBUG_ZONE: {
+      type: 'hideStarDebugZone',
+      source: 'santa-vegas-widget',
+    },
   }
+
+  // Длительность анимации Санты (мс)
+  const SANTA_ANIMATION_DURATION = 14000 // 14 секунд
 
   // ============================================
   // ЭЛЕМЕНТЫ DOM
@@ -50,7 +56,6 @@
   const bgMusic = document.getElementById('bgMusic')
   const santaAnimationWrapper = document.getElementById('santaAnimationWrapper')
   const santaAnimation = document.getElementById('santaAnimation')
-  const santaDynamicZone = document.getElementById('santaDynamicZone')
   const starLayer = document.getElementById('starLayer')
   const starClickZone = document.getElementById('starClickZone')
   const lampsLayer = document.getElementById('lampsLayer')
@@ -61,166 +66,337 @@
   let isSoundPlaying = false
   let canShowSanta = false
   let isAnimationPlaying = false
-  let clickZoneTimeout = null
   let isStarClicked = false
+  let showDebugZones = false // Флаг для показа визуализации кликабельных зон
 
-  // Вспомогательные переменные для управления анимацией зоны
-  let zoneAnimationId = null
-  let zoneStartTime = null
+  // ============================================
+  // SVG КЛИКАБЕЛЬНЫЕ ЗОНЫ
+  // ============================================
 
-  // Параметры движения кликабельной зоны (легко настраивать вручную)
-  const ZONE_BOTTOM = {
-    startTime: 0, // когда начинается нижняя фаза
-    duration: 4000, // сколько длится фаза
-    startX: 65,
-    endX: 30,
-    y: 60,
-    speed: 1,
-    width: 20,
-    height: 50,
-    fallback: {
-      x: 30, // позиция для резкого возврата
-      y: 0,
-      delay: 0, // сколько мс держать перед окончательным скрытием
+  /**
+   * КОНФИГУРАЦИЯ КЛИКАБЕЛЬНЫХ ЗОН ВНУТРИ SVG
+   *
+   * Каждая зона соответствует определенной части анимации Санты.
+   * Зона появляется только когда Санта находится в соответствующей позиции.
+   *
+   * Параметры каждой зоны:
+   * - id: ID элемента в SVG файле (группа анимации Санты)
+   * - paddingX: Отступ по горизонтали (слева и справа) в пикселях SVG
+   * - paddingY: Отступ по вертикали (сверху и снизу) в пикселях SVG
+   * - startTime: Время начала показа зоны в миллисекундах (от начала анимации)
+   * - endTime: Время окончания показа зоны в миллисекундах (от начала анимации)
+   */
+  const SVG_CLICK_TARGETS = [
+    {
+      id: 'eVIMzGcw2oK2_to', // ID группы анимации: нижняя траектория Санты
+      paddingX: 100, // Отступ слева и справа: 100px
+      paddingY: 70, // Отступ сверху и снизу: 70px
+      startTime: 0, // Зона активна с 0 мс (начало анимации)
+      endTime: 5100, // Зона активна до 5100 мс (5.1 секунд)
     },
+    {
+      id: 'eVIMzGcw2oK6_to', // ID группы анимации: верхняя траектория Санты
+      paddingX: 100, // Отступ слева и справа: 100px
+      paddingY: 70, // Отступ сверху и снизу: 70px
+      startTime: 5500, // Зона активна с 5500 мс (5.5 секунд)
+      endTime: 10550, // Зона активна до 10550 мс (10.55 секунд)
+    },
+    {
+      id: 'eVIMzGcw2oK4_to', // ID группы анимации: правый выход Санты
+      paddingX: 50, // Отступ слева и справа: 50px
+      paddingY: 50, // Отступ сверху и снизу: 50px
+      startTime: 11000, // Зона активна с 11000 мс (11 секунд)
+      endTime: 12500, // Зона активна до 12500 мс (12.5 секунд)
+    },
+    {
+      id: 'eVIMzGcw2oK5_to', // ID группы анимации: левый выход Санты
+      paddingX: 50, // Отступ слева и справа: 50px
+      paddingY: 50, // Отступ сверху и снизу: 50px
+      startTime: 12500, // Зона активна с 12500 мс (12.5 секунд)
+      endTime: SANTA_ANIMATION_DURATION, // Зона активна до конца анимации
+    },
+  ]
+
+  // Константа для создания SVG элементов
+  const SVG_NS = 'http://www.w3.org/2000/svg'
+
+  // Массив созданных кликабельных зон (SVG <rect> элементы)
+  let svgClickOverlays = []
+
+  // Время начала анимации Санты (для расчета текущего времени)
+  let santaAnimationStartTime = null
+
+  // ID анимации обновления зон (для остановки через cancelAnimationFrame)
+  let santaZoneAnimationId = null
+
+  /**
+   * ПОЛУЧЕНИЕ ДОСТУПА К SVG ДОКУМЕНТУ
+   *
+   * Возвращает contentDocument элемента <object>, который содержит SVG.
+   * Это нужно для поиска элементов внутри SVG и создания кликабельных зон.
+   */
+  function getSvgDocument() {
+    if (!santaAnimation) return null
+    return santaAnimation.contentDocument || null
   }
 
-  const ZONE_TOP = {
-    startTime: 5300, // задержка перед запуском верхней фазы
-    duration: 7200, // сколько длится фаза
-    startX: 6,
-    endX: 65,
-    y: 0,
-    speed: 1.44,
-    width: 20,
-    height: 30,
-    fallback: {
-      x: 17,
-      y: 0,
-      delay: 1400,
-    },
+  /**
+   * ОЧИСТКА КЛИКАБЕЛЬНЫХ ЗОН
+   *
+   * Удаляет все созданные зоны из DOM:
+   * 1. Удаляет обработчики событий
+   * 2. Удаляет элементы из SVG
+   * 3. Очищает массив svgClickOverlays
+   *
+   * Вызывается перед созданием новых зон (в rebuildSvgClickZones).
+   */
+  function cleanupSvgClickZones() {
+    svgClickOverlays.forEach(overlay => {
+      // Удаляем обработчик клика
+      overlay.removeEventListener('click', handleSvgZoneClick)
+      // Удаляем элемент из DOM
+      overlay.remove()
+    })
+    // Очищаем массив
+    svgClickOverlays = []
   }
 
-  // Функция для анимации движения динамической зоны
-  function animateSantaZone(timestamp) {
-    if (!zoneStartTime) zoneStartTime = timestamp
-    const elapsed = timestamp - zoneStartTime // время в мс от начала анимации
+  /**
+   * СОЗДАНИЕ КЛИКАБЕЛЬНЫХ ЗОН ВНУТРИ SVG
+   *
+   * Эта функция:
+   * 1. Находит элементы в SVG по ID из конфигурации
+   * 2. Получает их границы (bounding box)
+   * 3. Создает прямоугольники (<rect>) с отступами (padding)
+   * 4. Добавляет стили для визуализации и обработчики кликов
+   *
+   * РАСЧЕТ РАЗМЕРОВ И СМЕЩЕНИЙ:
+   * - x = bbox.x - paddingX (смещаем влево на paddingX)
+   * - y = bbox.y - paddingY (смещаем вверх на paddingY)
+   * - width = bbox.width + paddingX * 2 (ширина элемента + padding слева + padding справа)
+   * - height = bbox.height + paddingY * 2 (высота элемента + padding сверху + padding снизу)
+   */
+  function rebuildSvgClickZones() {
+    if (!santaAnimation) return
 
-    const bottomEnd = ZONE_BOTTOM.startTime + ZONE_BOTTOM.duration
-    const bottomFallbackEnd = bottomEnd + ZONE_BOTTOM.fallback.delay
-    const topEnd = ZONE_TOP.startTime + ZONE_TOP.duration
-    const topFallbackEnd = topEnd + ZONE_TOP.fallback.delay
-    const animationEnd = Math.max(bottomFallbackEnd, topFallbackEnd)
+    // Очищаем предыдущие зоны (если были)
+    cleanupSvgClickZones()
 
-    if (elapsed >= animationEnd) {
-      // Анімація закінчилась
-      if (santaDynamicZone) {
-        santaDynamicZone.style.display = 'none'
-      }
-      zoneAnimationId = null
-      zoneStartTime = null
+    // Получаем доступ к SVG документу через contentDocument
+    const doc = getSvgDocument()
+    if (!doc || !doc.documentElement) {
+      console.warn('[SantaWidget] contentDocument недоступен')
       return
     }
 
-    // ============================================================
-    // 🔻 ФАЗА 1: ВНИЗУ (справа → ліво)
-    // ============================================================
-    if (elapsed >= ZONE_BOTTOM.startTime && elapsed < bottomEnd) {
-      const phaseElapsed = elapsed - ZONE_BOTTOM.startTime
-      const progress = Math.min((phaseElapsed * ZONE_BOTTOM.speed) / ZONE_BOTTOM.duration, 1)
-      const xPercent = ZONE_BOTTOM.startX - progress * (ZONE_BOTTOM.startX - ZONE_BOTTOM.endX)
-      const yPercent = ZONE_BOTTOM.y
-
-      if (santaDynamicZone) {
-        santaDynamicZone.style.display = 'block'
-        santaDynamicZone.style.left = `${xPercent}%`
-        santaDynamicZone.style.top = `${yPercent}%`
-        santaDynamicZone.style.width = `${ZONE_BOTTOM.width}%`
-        santaDynamicZone.style.height = `${ZONE_BOTTOM.height}%`
-        santaDynamicZone.style.opacity = '1'
+    // Проходим по каждой зоне из конфигурации
+    SVG_CLICK_TARGETS.forEach(config => {
+      // Ищем элемент в SVG по ID (это группа анимации Санты)
+      const target = doc.getElementById(config.id)
+      if (!target) {
+        console.warn(`[SantaWidget] Не найден слой ${config.id} в SVG`)
+        return
       }
-    }
 
-    // ============================================================
-    // ⏸️ ПАУЗА (зона скрыта)
-    // ============================================================
-    else if (elapsed >= bottomEnd && elapsed < bottomFallbackEnd) {
-      if (santaDynamicZone) {
-        santaDynamicZone.style.display = 'block'
-        santaDynamicZone.style.left = `${ZONE_BOTTOM.fallback.x}%`
-        santaDynamicZone.style.top = `${ZONE_BOTTOM.fallback.y}%`
-        santaDynamicZone.style.width = `${ZONE_BOTTOM.width}%`
-        santaDynamicZone.style.height = `${ZONE_BOTTOM.height}%`
-        santaDynamicZone.style.opacity = '1'
-      }
-    } else if (elapsed >= bottomFallbackEnd && elapsed < ZONE_TOP.startTime) {
-      if (santaDynamicZone) {
-        santaDynamicZone.style.opacity = '0'
-      }
-    }
-    // ============================================================
-    // 🔼 ФАЗА 2: ВГОРІ (зліва → направо)
-    // ============================================================
-    else if (elapsed >= ZONE_TOP.startTime && elapsed < topEnd) {
-      const phase2Elapsed = elapsed - ZONE_TOP.startTime
-      const progress = Math.min((phase2Elapsed * ZONE_TOP.speed) / ZONE_TOP.duration, 1) // прогресс 0→1
+      try {
+        // ПОЛУЧЕНИЕ ГРАНИЦ ЭЛЕМЕНТА
+        // getBBox() возвращает объект с координатами и размерами:
+        // { x, y, width, height } - все в пикселях SVG
+        const bbox = target.getBBox()
 
-      const xPercent = ZONE_TOP.startX + progress * (ZONE_TOP.endX - ZONE_TOP.startX)
-      const yPercent = ZONE_TOP.y
+        // ПОЛУЧЕНИЕ ОТСТУПОВ ИЗ КОНФИГУРАЦИИ
+        const paddingX = config.paddingX ?? 0 // Отступ по горизонтали (px)
+        const paddingY = config.paddingY ?? 0 // Отступ по вертикали (px)
 
-      if (santaDynamicZone) {
-        santaDynamicZone.style.display = 'block'
-        santaDynamicZone.style.left = `${xPercent}%`
-        santaDynamicZone.style.top = `${yPercent}%`
-        santaDynamicZone.style.width = `${ZONE_TOP.width}%`
-        santaDynamicZone.style.height = `${ZONE_TOP.height}%`
-        santaDynamicZone.style.opacity = '1'
-      }
-    } else if (elapsed >= topEnd && elapsed < topFallbackEnd) {
-      if (santaDynamicZone) {
-        santaDynamicZone.style.display = 'block'
-        santaDynamicZone.style.left = `${ZONE_TOP.fallback.x}%`
-        santaDynamicZone.style.top = `${ZONE_TOP.fallback.y}%`
-        santaDynamicZone.style.width = `${ZONE_TOP.width}%`
-        santaDynamicZone.style.height = `${ZONE_TOP.height}%`
-        santaDynamicZone.style.opacity = '1'
-      }
-    }
+        // СОЗДАНИЕ ПРЯМОУГОЛЬНИКА-ЗОНЫ
+        const overlay = doc.createElementNS(SVG_NS, 'rect')
 
-    // Продовжуємо анімацію
-    zoneAnimationId = requestAnimationFrame(animateSantaZone)
+        // РАСЧЕТ ПОЗИЦИИ (X, Y) - СМЕЩЕНИЕ ВЛЕВО И ВВЕРХ НА PADDING
+        // x: смещаем влево на paddingX, чтобы зона была больше элемента
+        overlay.setAttribute('x', bbox.x - paddingX)
+        // y: смещаем вверх на paddingY, чтобы зона была больше элемента
+        overlay.setAttribute('y', bbox.y - paddingY)
+
+        // РАСЧЕТ ШИРИНЫ - ДОБАВЛЯЕМ PADDING СЛЕВА И СПРАВА
+        // width: ширина элемента + padding слева (paddingX) + padding справа (paddingX)
+        overlay.setAttribute('width', bbox.width + paddingX * 2)
+
+        // РАСЧЕТ ВЫСОТЫ - ДОБАВЛЯЕМ PADDING СВЕРХУ И СНИЗУ
+        // height: высота элемента + padding сверху (paddingY) + padding снизу (paddingY)
+        overlay.setAttribute('height', bbox.height + paddingY * 2)
+
+        // Скругление углов для визуализации
+        overlay.setAttribute('rx', 100)
+        overlay.setAttribute('ry', 100)
+
+        // ПРОВЕРКА: показывать ли визуализацию зон (управляется через postMessage)
+        if (showDebugZones) {
+          // Визуализация для отладки (красные полупрозрачные прямоугольники)
+          overlay.style.fill = 'rgba(255, 0, 0, 0.3)' // Красный фон, 30% прозрачности
+          overlay.style.stroke = 'rgba(255, 0, 0, 0.8)' // Красная обводка, 80% непрозрачности
+          overlay.style.strokeWidth = '2' // Толщина обводки: 2px
+        } else {
+          // Без визуализации (прозрачные зоны)
+          overlay.style.fill = 'transparent'
+          overlay.style.stroke = 'none'
+        }
+        overlay.style.cursor = 'pointer' // Курсор-указатель при наведении
+
+        // СОСТОЯНИЕ ПО УМОЛЧАНИЮ: зона скрыта и неактивна
+        overlay.style.pointerEvents = 'none' // Не реагирует на клики
+        overlay.style.display = 'none' // Скрыта
+
+        // Сохраняем данные для управления зоной
+        overlay.dataset.santaZone = config.id // ID зоны
+        overlay.dataset.startTime = config.startTime // Время начала показа
+        overlay.dataset.endTime = config.endTime // Время окончания показа
+
+        // ОБРАБОТЧИК КЛИКА
+        overlay.addEventListener('click', handleSvgZoneClick)
+
+        // ВСТАВЛЯЕМ ЗОНУ В SVG (внутрь целевого элемента)
+        target.appendChild(overlay)
+
+        // Сохраняем ссылку на зону для управления
+        svgClickOverlays.push(overlay)
+      } catch (error) {
+        console.error('[SantaWidget] Не удалось создать кликабельную зону', config.id, error)
+      }
+    })
+
+    // Зоны созданы, но скрыты по умолчанию (display: none)
+    // Они будут показаны через startSvgZonesAnimation() в нужное время
   }
 
-  // Функция для запуска анимации зоны
-  function startSantaZoneAnimation() {
-    console.log('Запускаємо анімацію динамічної зони')
+  /**
+   * ОБНОВЛЕНИЕ ВИДИМОСТИ И АКТИВНОСТИ ЗОН В ЗАВИСИМОСТИ ОТ ВРЕМЕНИ АНИМАЦИИ
+   *
+   * Эта функция вызывается каждый кадр (через requestAnimationFrame) и проверяет,
+   * какие зоны должны быть видны в текущий момент времени.
+   *
+   * ЛОГИКА:
+   * 1. Вычисляем текущее время анимации (сколько мс прошло с начала)
+   * 2. Для каждой зоны проверяем, находится ли текущее время в интервале [startTime, endTime]
+   * 3. Если да - показываем зону (display: block, pointerEvents: auto)
+   * 4. Если нет - скрываем зону (display: none, pointerEvents: none)
+   */
+  function updateSvgZonesVisibility() {
+    if (!santaAnimationStartTime) return
 
-    // Скидаємо попередню анімацію якщо була
-    if (zoneAnimationId) {
-      cancelAnimationFrame(zoneAnimationId)
-      zoneAnimationId = null
-    }
+    // ВЫЧИСЛЕНИЕ ТЕКУЩЕГО ВРЕМЕНИ АНИМАЦИИ
+    // currentTime = текущее время - время начала анимации (в миллисекундах)
+    const currentTime = Date.now() - santaAnimationStartTime
 
-    zoneStartTime = null
+    // Проходим по всем созданным зонам
+    svgClickOverlays.forEach(overlay => {
+      // Получаем временные интервалы из data-атрибутов
+      const startTime = parseInt(overlay.dataset.startTime, 10) // Время начала (мс)
+      const endTime = parseInt(overlay.dataset.endTime, 10) // Время окончания (мс)
 
-    // Запускаємо нову анімацію
-    zoneAnimationId = requestAnimationFrame(animateSantaZone)
+      // ПРОВЕРКА: находится ли текущее время в интервале активности зоны
+      if (currentTime >= startTime && currentTime <= endTime) {
+        // ЗОНА ДОЛЖНА БЫТЬ ВИДНА И АКТИВНА
+        overlay.style.display = 'block' // Показываем зону
+        overlay.style.pointerEvents = 'auto' // Разрешаем клики
+      } else {
+        // ЗОНА ДОЛЖНА БЫТЬ СКРЫТА И НЕАКТИВНА
+        overlay.style.display = 'none' // Скрываем зону
+        overlay.style.pointerEvents = 'none' // Блокируем клики
+      }
+    })
   }
 
-  // Функция для остановки анимации зоны
-  function stopSantaZoneAnimation() {
-    console.log('Зупиняємо анімацію динамічної зони')
-
-    if (zoneAnimationId) {
-      cancelAnimationFrame(zoneAnimationId)
-      zoneAnimationId = null
+  /**
+   * ЗАПУСК АНИМАЦИИ ОБНОВЛЕНИЯ ЗОН
+   *
+   * Эта функция запускает цикл обновления видимости зон через requestAnimationFrame.
+   * Зоны будут показываться/скрываться в зависимости от времени анимации Санты.
+   *
+   * ПРОЦЕСС:
+   * 1. Запоминаем время начала анимации
+   * 2. Запускаем цикл requestAnimationFrame
+   * 3. В каждом кадре вызываем updateSvgZonesVisibility()
+   * 4. Продолжаем пока не прошло полная длительность анимации (SANTA_ANIMATION_DURATION)
+   * 5. После окончания скрываем все зоны
+   */
+  function startSvgZonesAnimation() {
+    // Останавливаем предыдущую анимацию (если была)
+    if (santaZoneAnimationId) {
+      cancelAnimationFrame(santaZoneAnimationId)
     }
 
-    zoneStartTime = null
+    // ЗАПОМИНАЕМ ВРЕМЯ НАЧАЛА АНИМАЦИИ
+    // Это нужно для расчета текущего времени в updateSvgZonesVisibility()
+    santaAnimationStartTime = Date.now()
 
-    if (santaDynamicZone) {
-      santaDynamicZone.style.display = 'none'
+    // Функция анимации (вызывается каждый кадр)
+    const animate = () => {
+      // Обновляем видимость всех зон в зависимости от текущего времени
+      updateSvgZonesVisibility()
+
+      // ПРОВЕРКА: продолжать ли анимацию
+      const elapsed = Date.now() - santaAnimationStartTime // Прошедшее время (мс)
+      if (elapsed < SANTA_ANIMATION_DURATION) {
+        // Анимация еще не закончилась
+        // Продолжаем цикл
+        santaZoneAnimationId = requestAnimationFrame(animate)
+      } else {
+        // АНИМАЦИЯ ЗАКОНЧИЛАСЬ - скрываем все зоны
+        svgClickOverlays.forEach(overlay => {
+          overlay.style.display = 'none'
+          overlay.style.pointerEvents = 'none'
+        })
+        santaZoneAnimationId = null
+      }
     }
+
+    // Запускаем первый кадр анимации
+    santaZoneAnimationId = requestAnimationFrame(animate)
+  }
+
+  /**
+   * ОСТАНОВКА АНИМАЦИИ ЗОН
+   *
+   * Эта функция:
+   * 1. Останавливает цикл requestAnimationFrame
+   * 2. Сбрасывает время начала анимации
+   * 3. Скрывает все зоны
+   *
+   * Вызывается при:
+   * - Окончании анимации Санты
+   * - Клике на Санту (когда его поймали)
+   */
+  function stopSvgZonesAnimation() {
+    // Останавливаем цикл анимации
+    if (santaZoneAnimationId) {
+      cancelAnimationFrame(santaZoneAnimationId)
+      santaZoneAnimationId = null
+    }
+
+    // Сбрасываем время начала
+    santaAnimationStartTime = null
+
+    // СКРЫВАЕМ ВСЕ ЗОНЫ
+    svgClickOverlays.forEach(overlay => {
+      overlay.style.display = 'none' // Скрываем
+      overlay.style.pointerEvents = 'none' // Блокируем клики
+    })
+  }
+
+  /**
+   * ОБРАБОТЧИК КЛИКА ПО SVG ЗОНЕ
+   *
+   * Вызывается когда пользователь кликает на кликабельную зону (красный прямоугольник).
+   *
+   * ДЕЙСТВИЯ:
+   * 1. Предотвращает всплытие события (stopPropagation)
+   * 2. Предотвращает стандартное поведение (preventDefault)
+   * 3. Вызывает handleSantaClick() - основную функцию обработки клика на Санту
+   */
+  function handleSvgZoneClick(event) {
+    event.preventDefault() // Предотвращаем стандартное поведение
+    event.stopPropagation() // Останавливаем всплытие события
+    handleSantaClick(event) // Вызываем основную функцию обработки клика на Санту
   }
 
   // Проверяем query параметр для показа Санты
@@ -254,6 +430,21 @@
     isStarClicked = true
     console.log('⭐ Звезда нажата! Активируем праздничный режим и Санту')
 
+    // Сразу скрываем кликабельную зону звезды при клике
+    if (starClickZone) {
+      console.log('Скрываем starClickZone:', starClickZone)
+      // Используем setProperty с important, чтобы переопределить любые CSS правила
+      starClickZone.style.setProperty('display', 'none')
+      console.log('Кликабельная зона звезды скрыта')
+    } else {
+      console.warn('starClickZone не найден при попытке скрыть')
+    }
+
+    // Скрываем debug overlay на тестовой странице (если есть)
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(EVENTS.HIDE_STAR_DEBUG_ZONE, '*')
+    }
+
     // 1. Скрыть звезду с fade эффектом
     if (starLayer) {
       starLayer.classList.add('fade-out')
@@ -261,9 +452,6 @@
 
       setTimeout(() => {
         starLayer.style.display = 'none'
-        if (starClickZone) {
-          starClickZone.style.display = 'none'
-        }
         console.log('Звезда скрыта после fade-out')
       }, 500) // Ждем окончания fade-out анимации
     }
@@ -291,12 +479,10 @@
   function checkWidgetState() {
     const urlParams = new URLSearchParams(window.location.search)
     const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
-    const starClickedParam = urlParams.get(URL_PARAMS.STAR_CLICKED)
     const santaCaught = localStorage.getItem(STORAGE_KEYS.SANTA_CLICKED)
 
     console.log('Проверка состояния виджета:')
     console.log('- showSanta параметр:', showSantaParam)
-    console.log('- starClicked параметр:', starClickedParam)
     console.log('- santaClicked в localStorage:', santaCaught)
 
     // Случай 1: ?showSanta=false ИЛИ Санта уже была поймана (Группа 3)
@@ -306,18 +492,17 @@
       return WIDGET_STATES.PARTY_NO_SANTA
     }
 
-    // Случай 2: ?starClicked=true - звезда уже кликнута, показываем праздничный режим с Сантой (Группа 2)
-    if (starClickedParam === 'true') {
-      console.log('Режим: Активная пасхалка (звезда кликнута, показываем Санту) - Группа 2')
-      isStarClicked = true
-      activatePartyMode(true)
-      startSantaAnimation()
-      return WIDGET_STATES.ACTIVE_EASTER_EGG
-    }
-
-    // Случай 3: Стандартный режим (Группа 1)
+    // Случай 2: Стандартный режим (Группа 1)
     console.log('Режим: Стандартный (со звездой) - Группа 1')
     return WIDGET_STATES.DEFAULT
+  }
+
+  // Функция для активации группы 2 (активная пасхалка) через postMessage
+  function activateGroup2() {
+    console.log('Активация Группы 2 через postMessage')
+    isStarClicked = true
+    activatePartyMode(true)
+    startSantaAnimation()
   }
 
   // Активировать праздничный режим
@@ -366,17 +551,38 @@
 
     // Обработчик для клика на звезду (только если в стандартном режиме)
     if (widgetState === WIDGET_STATES.DEFAULT && starClickZone) {
-      starClickZone.addEventListener('click', handleStarClick)
-      console.log('Обработчик клика на звезду добавлен')
-    }
-
-    // Добавляем обработчик клика на динамическую зону Санты
-    if (santaDynamicZone) {
-      santaDynamicZone.addEventListener('click', function (event) {
-        console.log('Клик по динамічній зоні ловлі Санти')
-        handleSantaClick(event)
+      starClickZone.addEventListener('click', function (event) {
+        console.log('Клик по starClickZone зарегистрирован', event)
+        handleStarClick()
+      })
+      console.log('Обработчик клика на звезду добавлен, starClickZone:', starClickZone)
+    } else {
+      console.warn('Не удалось добавить обработчик звезды:', {
+        widgetState,
+        starClickZone: !!starClickZone,
       })
     }
+
+    // Обработчик postMessage от родительского окна
+    window.addEventListener('message', function (event) {
+      // Проверяем, что сообщение от родителя
+      if (event.data && typeof event.data === 'object') {
+        // Обработка команды показа/скрытия debug зон
+        if (event.data.type === 'showDebugZones') {
+          showDebugZones = event.data.value === true
+          console.log('showDebugZones установлен в:', showDebugZones)
+          // Пересоздаем зоны с новым флагом (если они уже созданы)
+          if (svgClickOverlays.length > 0) {
+            rebuildSvgClickZones()
+          }
+        }
+        // Обработка команды активации группы 2 (активная пасхалка)
+        if (event.data.type === 'activateGroup2') {
+          console.log('Получена команда активации Группы 2')
+          activateGroup2()
+        }
+      }
+    })
 
     console.log('Инициализация завершена')
   }
@@ -443,50 +649,71 @@
     santaAnimationWrapper.style.display = 'block'
     santaAnimationWrapper.style.opacity = '1'
 
-    // Запускаем динамическую анимацию кликабельной зоны
-    startSantaZoneAnimation()
-    console.log('Динамическая анімація зони запущена')
+    // ТОЛЬКО ПОСЛЕ показа wrapper создаем SVG зоны
+    // Функция для создания зон
+    const createSvgZones = () => {
+      const doc = getSvgDocument()
+      if (doc && doc.documentElement) {
+        rebuildSvgClickZones()
+        // Запускаем анимацию обновления зон (зоны будут показываться по времени)
+        startSvgZonesAnimation()
+        console.log('✅ Кликабельные зоны созданы, анимация запущена')
+        return true
+      }
+      return false
+    }
+
+    // Пробуем создать зоны сразу (если SVG уже загружен)
+    setTimeout(() => {
+      if (!createSvgZones()) {
+        // SVG еще не загружен, ждем события load
+        santaAnimation.addEventListener(
+          'load',
+          () => {
+            setTimeout(() => {
+              createSvgZones()
+            }, 100)
+          },
+          { once: true }
+        )
+      }
+    }, 150)
+
+    // Обработчик для пересоздания зон после перезагрузки SVG
+    const onSvgReload = () => {
+      setTimeout(() => {
+        createSvgZones()
+        console.log('✅ SVG перезагружен, зоны пересозданы')
+      }, 100)
+    }
+    santaAnimation.addEventListener('load', onSvgReload, { once: true })
 
     // Перезагружаем SVG для перезапуска анимации
     const currentSrc = santaAnimation.data
     console.log('Перезагружаем SVG:', currentSrc)
     santaAnimation.data = ''
-    // Небольшая задержка перед перезагрузкой
     setTimeout(() => {
-      santaAnimation.data = currentSrc
+      santaAnimation.data = currentSrc.split('?')[0] + '?v=' + Date.now()
       console.log('SVG перезагружен')
     }, 10)
 
-    // Скрываем кликабельную зону через 14 секунд
-    if (clickZoneTimeout) {
-      clearTimeout(clickZoneTimeout)
-    }
-    clickZoneTimeout = setTimeout(() => {
-      console.log('Скрываем кликабельную зону (14 сек прошло)')
-      stopSantaZoneAnimation()
-    }, 14000)
-
-    // Скрываем анимацию после завершения (14 секунд - полная длительность SVG)
+    // Скрываем анимацию после завершения (полная длительность SVG)
     setTimeout(() => {
       handleAnimationEnd()
-    }, 14000)
+    }, SANTA_ANIMATION_DURATION)
   }
 
   // Обработка окончания анимации
   function handleAnimationEnd() {
     console.log('handleAnimationEnd вызвана')
 
+    // Останавливаем анимацию SVG зон (скрывает все зоны)
+    stopSvgZonesAnimation()
+
     // Скрываем wrapper
     console.log('Скрываем wrapper и кликабельную зону')
     santaAnimationWrapper.style.display = 'none'
     santaAnimationWrapper.style.opacity = '0'
-    stopSantaZoneAnimation()
-
-    // Очищаем таймаут если он еще активен
-    if (clickZoneTimeout) {
-      clearTimeout(clickZoneTimeout)
-      clickZoneTimeout = null
-    }
 
     isAnimationPlaying = false
   }
@@ -510,14 +737,8 @@
     localStorage.setItem(STORAGE_KEYS.SANTA_CLICKED, 'true')
     console.log('Сохранено в localStorage: santaClicked = true')
 
-    // Мгновенно скрываем кликабельную зону и останавливаем анимацию
-    stopSantaZoneAnimation()
-
-    // Очищаем таймауты зон
-    if (clickZoneTimeout) {
-      clearTimeout(clickZoneTimeout)
-      clickZoneTimeout = null
-    }
+    // Останавливаем анимацию SVG зон (скрывает все зоны)
+    stopSvgZonesAnimation()
 
     // Добавляем класс для анимации вспышки
     santaAnimationWrapper.classList.add('clicked')
