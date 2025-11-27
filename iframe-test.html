@@ -366,98 +366,114 @@
             <p>Використовуйте наступний URL для віджета:</p>
             <div class="code-block">
               <code
-                >&lt;!-- З анімацією Санти --&gt; &lt;iframe
-                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"
-                style="width: 827px; height: 256px; border: none; background:
-                transparent;" frameborder="0" scrolling="no" &gt;&lt;/iframe&gt;
-                &lt;!-- Без Санти (тільки музика) --&gt; &lt;iframe
-                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"
-                style="width: 827px; height: 256px; border: none; background:
-                transparent;" frameborder="0" scrolling="no"
-                &gt;&lt;/iframe&gt;</code
+                >&lt;iframe
+                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html"
+                style="border: none; background: transparent;" frameborder="0"
+                scrolling="no" &gt;&lt;/iframe&gt;</code
               >
             </div>
+            <p style="margin-top: 10px">
+              <span class="highlight">background: transparent</span> - для
+              прозорого фону
+            </p>
           </div>
 
           <div class="instruction-box">
-            <h3>2. Обробка події кліку по Санті (опціонально)</h3>
-            <p>Для Vue.js/TypeScript проектів - приклизний код:</p>
-            <div class="code-block">
-              <code
-                >// У вашому компоненті (mounted/onMounted)
-                window.addEventListener('message', (event) =&gt; { if
-                (event.data?.source === 'santa-vegas-widget') { if
-                (event.data.type === 'santaClicked') { // Ваша логіка: відкрити
-                модалку, navigate, тощо this.handleSantaClick(); // або
-                router.push('/promo') } } }); // Динамічна зміна URL iframe
-                (якщо потрібно) const showSanta = ref(true); const iframeUrl =
-                computed(() =&gt;
-                `https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=${showSanta.value}`
-                );</code
-              >
-            </div>
-          </div>
-
-          <div class="instruction-box">
-            <h3>3. Налаштування</h3>
-            <p><strong>Параметри iframe:</strong></p>
+            <h3>2. URL параметри</h3>
             <ul>
               <li>
-                <span class="highlight">width</span> - рекомендована ширина:
-                827px (пропорції логотипа)
+                <span class="highlight">?showSanta=false</span> - вимикає
+                анімацію Санти (для користувачів, які вже спіймали Санту)
               </li>
               <li>
-                <span class="highlight">height</span> - рекомендована висота:
-                256px
+                Без параметра - віджет працює в стандартному режимі і
+                автоматично визначає поведінку на основі localStorage
+              </li>
+            </ul>
+            <p style="margin-top: 10px">
+              <strong>Для тестової сторінки:</strong>
+            </p>
+            <ul>
+              <li>
+                <span class="highlight">?starClicked=true</span> - емуляція
+                активної пасхалки (Група 2). Використовується тільки для
+                тестування, на проді не потрібен.
+              </li>
+            </ul>
+          </div>
+
+          <div class="instruction-box">
+            <h3>3. localStorage та поведінка віджета</h3>
+            <p>
+              Віджет автоматично зберігає стан взаємодії користувача в
+              localStorage браузера:
+            </p>
+            <ul>
+              <li>
+                <strong>Ключ:</strong>
+                <code>santaClicked</code>
               </li>
               <li>
-                <span class="highlight">background: transparent</span> - для
-                прозорого фону
+                <strong>Значення:</strong>
+                <code>"true"</code> - якщо користувач спіймав Санту
               </li>
             </ul>
 
             <p style="margin-top: 15px">
-              <strong>URL параметр showSanta:</strong>
+              <strong>Режими роботи віджета:</strong>
             </p>
             <ul>
               <li>
-                <span class="highlight">?showSanta=true</span> - показувати
-                анімацію Санти
+                <strong>Група 1 (Стандартний режим):</strong> Відображається
+                логотип із зіркою. При кліку на зірку активується праздничний
+                режим і з'являється анімація Санти.
               </li>
               <li>
-                <span class="highlight">?showSanta=false</span> - не показується
-                анімація Санти
+                <strong>Група 2 (Активна пасхалка):</strong> Після кліку на
+                зірку - альтернативна анімація гірлянд (party mode) та
+                пролітаючий Санта. Користувач може клікнути на Санту щоб його
+                "спіймати".
               </li>
-              <li>Без параметра - показується Санта за замовчуванням</li>
               <li>
-                <span class="highlight">?starClicked=true</span> - параметр
-                додано тільки для емуляції активної пасхалки при кліку на зірку
-                для тестової сторінки. На проді не використовується.
+                <strong>Група 3 (Поймана пасхалка):</strong> Якщо
+                <code>santaClicked = "true"</code> в localStorage - віджет
+                автоматично відображає праздничний режим БЕЗ анімації Санти.
+                Зірка приховується, клік на неї не викликає Санту.
               </li>
             </ul>
+
+            <p style="margin-top: 15px">
+              <strong>⚠️ Важливо:</strong> Після того як користувач спіймав
+              Санту, запис <code>santaClicked: "true"</code> залишається в
+              localStorage назавжди. При наступних відвідуваннях сторінки віджет
+              автоматично переходить у режим Група 3 (праздничний без Санти).
+            </p>
           </div>
 
           <div class="instruction-box">
             <h3>4. postMessage події</h3>
-            <p><strong>Віджет відправляє:</strong></p>
+            <p>
+              Віджет відправляє події батьківському вікну для аналітики та
+              обробки взаємодій:
+            </p>
             <ul>
               <li>
                 <code
                   >{ type: 'santaClicked', source: 'santa-vegas-widget' }</code
                 >
-                - клік по Санті
+                - користувач спіймав Санту (відправляється один раз за промо)
               </li>
               <li>
                 <code>{ type: 'sound_on', source: 'santa-vegas-widget' }</code>
-                - звук включено
+                - користувач увімкнув звук
               </li>
               <li>
                 <code>{ type: 'sound_off', source: 'santa-vegas-widget' }</code>
-                - звук вимкнено
+                - користувач вимкнув звук
               </li>
             </ul>
 
-            <p style="margin-top: 15px"><strong>Структура події:</strong></p>
+            <p style="margin-top: 15px"><strong>Структура подій:</strong></p>
             <div class="code-block">
               <code
                 >interface SantaClickedEvent { type: 'santaClicked'; source:
@@ -465,39 +481,6 @@
                 | 'sound_off'; source: 'santa-vegas-widget'; }</code
               >
             </div>
-          </div>
-
-          <div class="info-box">
-            <strong>💡 Порада:</strong> Керуйте показом Санти через URL
-            параметр. Для Vue.js просто змінюйте значення у computed/ref і
-            прив'язуйте до :src iframe.
-          </div>
-        </div>
-
-        <!-- Приклад для Vue.js -->
-        <div class="section">
-          <h2>💻 Приклад інтеграції у Vue.js компонент</h2>
-          <div class="code-block">
-            <code
-              >&lt;template&gt; &lt;iframe :src="widgetUrl" style="width: 827px;
-              height: 256px; border: none; background: transparent;"
-              frameborder="0" scrolling="no" /&gt; &lt;/template&gt; &lt;script
-              setup lang="ts"&gt; import { ref, computed, onMounted, onUnmounted
-              } from 'vue'; const showSanta = ref(true); const widgetUrl =
-              computed(() =&gt; { const baseUrl =
-              'https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html';
-              return `${baseUrl}?showSanta=${showSanta.value}`; }); const
-              handleMessage = (event: MessageEvent) =&gt; { if
-              (event.data?.source === 'santa-vegas-widget') { if
-              (event.data.type === 'santaClicked') { // Ваша логіка обробки
-              кліку console.log('Санта клікнуто!'); } if (event.data.type ===
-              'sound_on') { console.log('Звук включено'); } if (event.data.type
-              === 'sound_off') { console.log('Звук вимкнено'); } } };
-              onMounted(() =&gt; { window.addEventListener('message',
-              handleMessage); }); onUnmounted(() =&gt; {
-              window.removeEventListener('message', handleMessage); });
-              &lt;/script&gt;</code
-            >
           </div>
         </div>
       </div>
