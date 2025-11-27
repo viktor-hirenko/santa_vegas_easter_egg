@@ -65,10 +65,57 @@
   let clickZoneTimeout = null
   let isStarClicked = false
 
+  // Вспомогательные переменные для управления зонами
+  let zoneTimingIntervals = []
+
   // Вспомогательная функция для управления зонами Санты
   function setSantaClickZonesDisplay(display) {
     if (santaClickZoneTop) santaClickZoneTop.style.display = display
     if (santaClickZoneBottom) santaClickZoneBottom.style.display = display
+  }
+
+  // Функция для отображения только одной зоны
+  function showTopZoneOnly() {
+    if (santaClickZoneTop) santaClickZoneTop.style.display = 'block'
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
+  }
+
+  function showBottomZoneOnly() {
+    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'block'
+  }
+
+  // Функция для управления динамическим отображением зон в зависимости от позиции Санты
+  function manageSantaClickZones() {
+    console.log('Управляем динамическим отображением зон Санты')
+
+    // Очищаем старые таймеры если они были
+    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
+    zoneTimingIntervals = []
+
+    // Санта летит внизу (0-5 сек) - показываем нижнюю зону
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('0-5 сек: Санта летит внизу - показываем нижнюю зону')
+        showBottomZoneOnly()
+      }, 0)
+    )
+
+    // На 5 секунде скрываем нижнюю зону (обе зоны скрыты)
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('5 сек: Скрываем нижнюю зону - пауза перед верхней')
+        setSantaClickZonesDisplay('none')
+      }, 5000)
+    )
+
+    // Санта летит вверху (5.5-14 сек) - показываем верхнюю зону через 500мс задержки
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('5.5-14 сек: Санта летит вверху - показываем верхнюю зону')
+        showTopZoneOnly()
+      }, 5500)
+    )
   }
 
   // Проверяем query параметр для показа Санты
@@ -297,9 +344,9 @@
     santaAnimationWrapper.style.display = 'block'
     santaAnimationWrapper.style.opacity = '1'
 
-    // Показываем кликабельную зону
-    setSantaClickZonesDisplay('block')
-    console.log('Кликабельная зона показана')
+    // Запускаем динамическое управление кликабельными зонами
+    manageSantaClickZones()
+    console.log('Динамическое управление зонами запущено')
 
     // Перезагружаем SVG для перезапуска анимации
     const currentSrc = santaAnimation.data
@@ -342,6 +389,10 @@
       clickZoneTimeout = null
     }
 
+    // Очищаем таймеры управления зонами
+    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
+    zoneTimingIntervals = []
+
     isAnimationPlaying = false
   }
 
@@ -367,11 +418,15 @@
     // Мгновенно скрываем кликабельную зону
     setSantaClickZonesDisplay('none')
 
-    // Очищаем таймаут зоны
+    // Очищаем таймауты зон
     if (clickZoneTimeout) {
       clearTimeout(clickZoneTimeout)
       clickZoneTimeout = null
     }
+
+    // Очищаем таймеры управления зонами
+    zoneTimingIntervals.forEach(interval => clearTimeout(interval))
+    zoneTimingIntervals = []
 
     // Добавляем класс для анимации вспышки
     santaAnimationWrapper.classList.add('clicked')

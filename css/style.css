@@ -56,10 +56,6 @@ body {
   z-index: 1;
 }
 
-.santa-animation-wrapper {
-  z-index: 2;
-}
-
 .base-logo {
   z-index: 3;
 }
@@ -84,7 +80,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 5;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -113,18 +109,21 @@ body {
   width: 100%;
   z-index: 20;
   cursor: pointer;
-  /* Для отладки раскомментировать: */
-  /* background: rgba(0, 255, 0, 0.2); */
 }
 
 .santa-click-zone-top {
   top: 0;
-  height: 40%;
+  height: 30%;
+  /* Для отладки раскомментировать: */
+  /* background: rgba(0, 255, 0, 0.2); */
 }
 
 .santa-click-zone-bottom {
   bottom: 0;
-  height: 60%;
+  height: 40%;
+
+  /* Для отладки раскомментировать: */
+  /* background: rgba(255, 0, 43, 0.278); */
 }
 
 /* SVG объект с анимацией Санты */
