@@ -50,8 +50,10 @@
   const bgMusic = document.getElementById('bgMusic')
   const santaAnimationWrapper = document.getElementById('santaAnimationWrapper')
   const santaAnimation = document.getElementById('santaAnimation')
-  const santaClickZoneTop = document.getElementById('santaClickZoneTop')
   const santaClickZoneBottom = document.getElementById('santaClickZoneBottom')
+  const santaClickZoneTop = document.getElementById('santaClickZoneTop')
+  const santaClickZoneTopRight = document.getElementById('santaClickZoneTopRight')
+  const santaClickZoneTopLeft = document.getElementById('santaClickZoneTopLeft')
   const starLayer = document.getElementById('starLayer')
   const starClickZone = document.getElementById('starClickZone')
   const lampsLayer = document.getElementById('lampsLayer')
@@ -70,19 +72,39 @@
 
   // Вспомогательная функция для управления зонами Санты
   function setSantaClickZonesDisplay(display) {
-    if (santaClickZoneTop) santaClickZoneTop.style.display = display
     if (santaClickZoneBottom) santaClickZoneBottom.style.display = display
+    if (santaClickZoneTop) santaClickZoneTop.style.display = display
+    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = display
+    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = display
   }
 
   // Функция для отображения только одной зоны
-  function showTopZoneOnly() {
-    if (santaClickZoneTop) santaClickZoneTop.style.display = 'block'
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
+  function showBottomZoneOnly() {
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'block'
+    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
+    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
+    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
   }
 
-  function showBottomZoneOnly() {
+  function showTopZoneOnly() {
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
+    if (santaClickZoneTop) santaClickZoneTop.style.display = 'block'
+    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
+    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
+  }
+
+  function showTopRightZoneOnly() {
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
     if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
-    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'block'
+    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'block'
+    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'none'
+  }
+
+  function showTopLeftZoneOnly() {
+    if (santaClickZoneBottom) santaClickZoneBottom.style.display = 'none'
+    if (santaClickZoneTop) santaClickZoneTop.style.display = 'none'
+    if (santaClickZoneTopRight) santaClickZoneTopRight.style.display = 'none'
+    if (santaClickZoneTopLeft) santaClickZoneTopLeft.style.display = 'block'
   }
 
   // Функция для управления динамическим отображением зон в зависимости от позиции Санты
@@ -93,28 +115,60 @@
     zoneTimingIntervals.forEach(interval => clearTimeout(interval))
     zoneTimingIntervals = []
 
-    // Санта летит внизу (0-5 сек) - показываем нижнюю зону
+    // Санта летит внизу (0-4 сек) - показываем нижнюю зону
     zoneTimingIntervals.push(
       setTimeout(() => {
-        console.log('0-5 сек: Санта летит внизу - показываем нижнюю зону')
+        console.log('0-4 сек: Санта летит внизу - показываем нижнюю зону')
         showBottomZoneOnly()
       }, 0)
     )
 
-    // На 5 секунде скрываем нижнюю зону (обе зоны скрыты)
+    // На 4 секунде скрываем нижнюю зону (все зоны скрыты)
     zoneTimingIntervals.push(
       setTimeout(() => {
-        console.log('5 сек: Скрываем нижнюю зону - пауза перед верхней')
+        console.log('4 сек: Скрываем нижнюю зону - пауза перед верхними')
         setSantaClickZonesDisplay('none')
       }, 5000)
     )
 
-    // Санта летит вверху (5.5-14 сек) - показываем верхнюю зону через 500мс задержки
+    // Санта вверху - показываем длинную верхнюю зону (4.5-8 сек)
     zoneTimingIntervals.push(
       setTimeout(() => {
-        console.log('5.5-14 сек: Санта летит вверху - показываем верхнюю зону')
+        console.log('4.5-8 сек: Санта вверху - показываем длинную верхнюю зону')
         showTopZoneOnly()
       }, 5500)
+    )
+
+    // На 8 секунде скрываем длинную зону (пауза перед правой)
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('8 сек: Скрываем длинную зону - пауза перед правой')
+        setSantaClickZonesDisplay('none')
+      }, 11000)
+    )
+
+    // Санта справа вверху (8.5-11 сек) - показываем правую верхнюю зону через 500мс задержки
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('8.5-11 сек: Санта справа вверху - показываем правую зону')
+        showTopRightZoneOnly()
+      }, 11500)
+    )
+
+    // На 11 секунде скрываем правую зону (пауза перед левой)
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('11 сек: Скрываем правую зону - пауза перед левой')
+        setSantaClickZonesDisplay('none')
+      }, 12500)
+    )
+
+    // Санта зліва вверху (11.5-14 сек) - показываем левую верхнюю зону через 500мс задержки
+    zoneTimingIntervals.push(
+      setTimeout(() => {
+        console.log('11.5-14 сек: Санта зліва вверху - показываем левую зону')
+        showTopLeftZoneOnly()
+      }, 12500)
     )
   }
 
@@ -266,15 +320,21 @@
     }
 
     // Добавляем обработчики клика на кликабельные зоны Санты
-    if (santaClickZoneTop) {
-      santaClickZoneTop.addEventListener('click', function (event) {
-        console.log('Клик по верхней зоне ловли Санты')
-        handleSantaClick(event)
-      })
-    }
     if (santaClickZoneBottom) {
       santaClickZoneBottom.addEventListener('click', function (event) {
         console.log('Клик по нижней зоне ловли Санты')
+        handleSantaClick(event)
+      })
+    }
+    if (santaClickZoneTopRight) {
+      santaClickZoneTopRight.addEventListener('click', function (event) {
+        console.log('Клик по правой верхней зоне ловли Санты')
+        handleSantaClick(event)
+      })
+    }
+    if (santaClickZoneTopLeft) {
+      santaClickZoneTopLeft.addEventListener('click', function (event) {
+        console.log('Клик по левой верхней зоне ловли Санты')
         handleSantaClick(event)
       })
     }

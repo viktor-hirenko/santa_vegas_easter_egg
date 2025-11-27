@@ -113,17 +113,43 @@ body {
 
 .santa-click-zone-top {
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 30%;
+  width: 70%;
+  /* Для отладки раскомментировать: */
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.santa-click-zone-top-right {
+  position: absolute;
+  top: 0;
+  right: 23%;
+  height: 30%;
+  width: 10%;
+  /* Для отладки раскомментировать: */
+  background: rgba(0, 128, 0, 0.5);
+}
+
+.santa-click-zone-top-left {
+  position: absolute;
+  top: 0;
+  left: 23%;
+  width: 10%;
   height: 30%;
   /* Для отладки раскомментировать: */
-  /* background: rgba(0, 255, 0, 0.2); */
+  background: rgba(255, 255, 0, 0.5);
 }
 
 .santa-click-zone-bottom {
+  left: 50%;
   bottom: 0;
+  transform: translateX(-50%);
+  width: 40%;
   height: 40%;
 
   /* Для отладки раскомментировать: */
-  /* background: rgba(255, 0, 43, 0.278); */
+  background: rgba(255, 0, 43, 0.278);
 }
 
 /* SVG объект с анимацией Санты */

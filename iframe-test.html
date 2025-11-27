@@ -298,13 +298,14 @@
                     Star
                   </div>
                 </div>
-                <!-- Santa Top Zone (зелений) -->
+                <!-- Santa Top Zone (зелений - довга) -->
                 <div
                   style="
                     position: absolute;
                     top: 0;
-                    left: 0;
-                    width: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 70%;
                     height: 30%;
                     background: rgba(0, 255, 0, 0.2);
                     border: 2px solid lime;
@@ -312,7 +313,6 @@
                 >
                   <div
                     style="
-                      /* background: lime; */
                       color: white;
                       padding: 4px 8px;
                       font-size: 11px;
@@ -320,16 +320,69 @@
                       border-radius: 3px;
                     "
                   >
-                    Santa Top
+                    Santa Top (long)
+                  </div>
+                </div>
+                <!-- Santa Top Right Zone (темно-зелений) -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 0;
+                    right: 23%;
+                    display: flex;
+                    justify-content: center;
+                    width: 10%;
+                    height: 25%;
+                    background: rgba(0, 128, 0, 0.2);
+                    border: 2px solid darkgreen;
+                  "
+                >
+                  <div
+                    style="
+                      color: white;
+                      padding: 4px 8px;
+                      font-size: 11px;
+                      font-weight: bold;
+                      border-radius: 3px;
+                    "
+                  >
+                    Santa Top Right
+                  </div>
+                </div>
+                <!-- Santa Top Left Zone (жовтий) -->
+                <div
+                  style="
+                    position: absolute;
+                    top: 0;
+                    left: 23%;
+                    display: flex;
+                    justify-content: center;
+                    width: 10%;
+                    height: 25%;
+                    background: rgba(255, 255, 0, 0.2);
+                    border: 2px solid yellow;
+                  "
+                >
+                  <div
+                    style="
+                      color: white;
+                      padding: 4px 8px;
+                      font-size: 11px;
+                      font-weight: bold;
+                      border-radius: 3px;
+                    "
+                  >
+                    Santa Top Left
                   </div>
                 </div>
                 <!-- Santa Bottom Zone (синій) -->
                 <div
                   style="
                     position: absolute;
-                    bottom: 0%;
-                    left: 0;
-                    width: 100%;
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 40%;
                     height: 40%;
                     background: rgba(0, 0, 255, 0.2);
                     border: 2px solid blue;
