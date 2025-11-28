@@ -67,6 +67,7 @@
   let isAnimationPlaying = false
   let isStarClicked = false
   let showDebugZones = false // Флаг для показа визуализации кликабельных зон
+  let resizeTimeout = null // Таймер для debounce resize события
 
   // ============================================
   // SVG КЛИКАБЕЛЬНЫЕ ЗОНЫ
@@ -88,29 +89,29 @@
   const SVG_CLICK_TARGETS = [
     {
       id: 'eVIMzGcw2oK2_to', // ID группы анимации: нижняя траектория Санты
-      paddingX: 100, // Отступ слева и справа: 100px
-      paddingY: 70, // Отступ сверху и снизу: 70px
+      paddingX: 110, // Отступ слева и справа: 100px
+      paddingY: 80, // Отступ сверху и снизу: 70px
       startTime: 0, // Зона активна с 0 мс (начало анимации)
       endTime: 5100, // Зона активна до 5100 мс (5.1 секунд)
     },
     {
       id: 'eVIMzGcw2oK6_to', // ID группы анимации: верхняя траектория Санты
-      paddingX: 100, // Отступ слева и справа: 100px
-      paddingY: 70, // Отступ сверху и снизу: 70px
+      paddingX: 110, // Отступ слева и справа: 100px
+      paddingY: 80, // Отступ сверху и снизу: 70px
       startTime: 5500, // Зона активна с 5500 мс (5.5 секунд)
       endTime: 10550, // Зона активна до 10550 мс (10.55 секунд)
     },
     {
       id: 'eVIMzGcw2oK4_to', // ID группы анимации: правый выход Санты
-      paddingX: 50, // Отступ слева и справа: 50px
-      paddingY: 50, // Отступ сверху и снизу: 50px
+      paddingX: 70, // Отступ слева и справа: 50px
+      paddingY: 70, // Отступ сверху и снизу: 50px
       startTime: 11000, // Зона активна с 11000 мс (11 секунд)
       endTime: 12500, // Зона активна до 12500 мс (12.5 секунд)
     },
     {
       id: 'eVIMzGcw2oK5_to', // ID группы анимации: левый выход Санты
-      paddingX: 50, // Отступ слева и справа: 50px
-      paddingY: 50, // Отступ сверху и снизу: 50px
+      paddingX: 70, // Отступ слева и справа: 50px
+      paddingY: 70, // Отступ сверху и снизу: 50px
       startTime: 12500, // Зона активна с 12500 мс (12.5 секунд)
       endTime: SANTA_ANIMATION_DURATION, // Зона активна до конца анимации
     },
@@ -188,6 +189,12 @@
       return
     }
 
+    // Определяем, мобильный ли это экран (ширина контейнера <= 600px)
+    const containerWidth = santaAnimationWrapper?.offsetWidth || window.innerWidth
+    const isMobile = containerWidth <= 600
+    // Множитель для padding на мобильных (увеличиваем на 50%)
+    const paddingMultiplier = isMobile ? 1.7 : 1
+
     // Проходим по каждой зоне из конфигурации
     SVG_CLICK_TARGETS.forEach(config => {
       // Ищем элемент в SVG по ID (это группа анимации Санты)
@@ -203,9 +210,9 @@
         // { x, y, width, height } - все в пикселях SVG
         const bbox = target.getBBox()
 
-        // ПОЛУЧЕНИЕ ОТСТУПОВ ИЗ КОНФИГУРАЦИИ
-        const paddingX = config.paddingX ?? 0 // Отступ по горизонтали (px)
-        const paddingY = config.paddingY ?? 0 // Отступ по вертикали (px)
+        // ПОЛУЧЕНИЕ ОТСТУПОВ ИЗ КОНФИГУРАЦИИ С УЧЕТОМ МОБИЛЬНЫХ УСТРОЙСТВ
+        const paddingX = (config.paddingX ?? 0) * paddingMultiplier // Отступ по горизонтали (px)
+        const paddingY = (config.paddingY ?? 0) * paddingMultiplier // Отступ по вертикали (px)
 
         // СОЗДАНИЕ ПРЯМОУГОЛЬНИКА-ЗОНЫ
         const overlay = doc.createElementNS(SVG_NS, 'rect')
@@ -225,8 +232,8 @@
         overlay.setAttribute('height', bbox.height + paddingY * 2)
 
         // Скругление углов для визуализации
-        overlay.setAttribute('rx', 100)
-        overlay.setAttribute('ry', 100)
+        overlay.setAttribute('rx', 200)
+        overlay.setAttribute('ry', 200)
 
         // ПРОВЕРКА: показывать ли визуализацию зон (управляется через postMessage)
         if (showDebugZones) {
@@ -552,6 +559,29 @@
           console.log('Получена команда активации Группы 2')
           activateGroup2()
         }
+      }
+    })
+
+    // Обработчик изменения размера окна/контейнера для пересчета padding зон
+    window.addEventListener('resize', function () {
+      // Debounce: пересчитываем только если зоны уже созданы и анимация активна
+      if (svgClickOverlays.length > 0 && isAnimationPlaying) {
+        clearTimeout(resizeTimeout)
+        resizeTimeout = setTimeout(() => {
+          console.log('Размер контейнера изменился, пересчитываем зоны')
+          rebuildSvgClickZones()
+        }, 150) // Небольшая задержка для оптимизации
+      }
+    })
+
+    // Обработчик изменения ориентации устройства (для мобильных)
+    window.addEventListener('orientationchange', function () {
+      // Пересчитываем зоны после изменения ориентации
+      if (svgClickOverlays.length > 0 && isAnimationPlaying) {
+        setTimeout(() => {
+          console.log('Ориентация изменилась, пересчитываем зоны')
+          rebuildSvgClickZones()
+        }, 200) // Задержка для завершения изменения ориентации
       }
     })
 

@@ -374,11 +374,45 @@
 
             <p style="margin-top: 15px"><strong>Структура події:</strong></p>
             <div class="code-block">
-              <code
-                >interface SantaClickedEvent { type: 'santaClicked'; source:
-                'santa-vegas-widget'; } interface SoundEvent { type: 'sound_on'
-                | 'sound_off'; source: 'santa-vegas-widget'; }</code
-              >
+              <code>
+                interface SantaClickedEvent { type: 'santaClicked'; source:
+                'santa-vegas-widget'; }<br>
+                interface SoundEvent { type: 'sound_on' | 'sound_off'; source: 'santa-vegas-widget'; }
+            </div>
+          </div>
+
+          <div class="instruction-box">
+            <h3>4. localStorage</h3>
+            <p>
+              <strong>Віджет використовує localStorage для збереження стану:</strong>
+            </p>
+            <ul>
+              <li>
+                <span class="highlight">santaClicked</span> - зберігається значення
+                <code>'true'</code> після того, як користувач поймав Санту
+              </li>
+              <li>
+                Це значення зберігається між сесіями браузера і впливає на
+                поведінку віджета
+              </li>
+              <li>
+                Якщо <code>santaClicked === 'true'</code>, віджет завжди
+                показує режим Групи 3 (святкова версія без Санти і зірки)
+              </li>
+              <li>
+                Користувач може спіймати Санту тільки один раз за весь період
+                промо
+              </li>
+            </ul>
+
+            <p style="margin-top: 15px">
+              <strong>Приклад очищення localStorage (для тестування):</strong>
+            </p>
+            <div class="code-block">
+              <code>
+                // Очистити стан пойманого Санти<br>
+                localStorage.removeItem('santaClicked')
+              </code>
             </div>
           </div>
         </div>
