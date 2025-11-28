@@ -80,8 +80,21 @@
         margin-left: 20px;
       }
 
+      .instruction-box p {
+        font-size: 16px;
+      }
+
+      .instruction-box ul {
+        font-size: 16px;
+      }
+
       .instruction-box li {
         margin: 10px 0;
+        font-size: 16px;
+      }
+
+      .instruction-box code {
+        font-size: 16px;
       }
 
       .code-block {
@@ -203,7 +216,27 @@
         font-size: 14px;
       }
 
-      @media (max-width: 768px) {
+      .star-click-zone {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -57%);
+        width: clamp(18cqw, 18cqw, 180px);
+        height: clamp(18cqw, 22cqw, 180px);
+        background: rgba(255, 0, 0, 0.3);
+        border: 2px solid red;
+        border-radius: 50%;
+        }
+
+      /* Container query для увеличения зоны звезды на мобильных */
+      @container (max-width: 600px) {
+        #debugOverlay .star-click-zone {
+          width: clamp(30cqw, 25cqw, 220px);
+          height: clamp(30cqw, 30cqw, 240px);
+        }
+      }
+
+      @media (max-width: 600px) {
         body {
           padding: 10px;
         }
@@ -236,19 +269,19 @@
             <div class="demo-controls">
               <label>
                 <input type="radio" name="widgetGroup" value="group1" checked />
-                <span>Група 1: Стандартний режим</span>
+                <span>🏁 Група 1: Стандартний режим</span>
               </label>
               <label>
                 <input type="radio" name="widgetGroup" value="group2" />
-                <span>Група 2: Активна пасхалка</span>
+                <span>🎅 Група 2: Активна пасхалка</span>
               </label>
               <label>
                 <input type="radio" name="widgetGroup" value="group3" />
-                <span>Група 3: Спіймана пасхалка</span>
+                <span>🎄 Група 3: Спіймана пасхалка</span>
               </label>
               <label>
                 <input type="checkbox" id="debugZones" />
-                <span>🔍 Показати клікабельні зони</span>
+                <span>🟥 Показати клікабельні зони</span>
               </label>
             </div>
 
@@ -291,17 +324,7 @@
               >
                 <!-- Кликабельная зона звезды (красная) -->
                 <div
-                  style="
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -57%);
-                    width: min(18cqw, 180px);
-                    height: min(22cqw, 180px);
-                    background: rgba(255, 0, 0, 0.3);
-                    border: 2px solid red;
-                  "
-                ></div>
+                  class="star-click-zone"></div>
               </div>
             </div>
 
@@ -320,14 +343,16 @@
             <p>Використовуйте наступний URL для віджета:</p>
             <div class="code-block">
               <code
-                >&lt;!-- З анімацією Санти --&gt; &lt;iframe
-                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"
-                style="width: 827px; height: 256px; border: none; background:
-                transparent;" frameborder="0" scrolling="no" &gt;&lt;/iframe&gt;
-                &lt;!-- Без Санти (тільки музика) --&gt; &lt;iframe
-                src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"
-                style="width: 827px; height: 256px; border: none; background:
-                transparent;" frameborder="0" scrolling="no"
+                >&lt;!-- З анімацією Санти --&gt;<br />
+                &lt;iframe<br />
+                &nbsp;&nbsp;src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=true"<br />
+                &nbsp;&nbsp;frameborder="0" scrolling="no"<br />
+                &gt;&lt;/iframe&gt;<br />
+                <br />
+                &lt;!-- Без Санти (тільки музика) --&gt;<br />
+                &lt;iframe<br />
+                &nbsp;&nbsp;src="https://rocketplay-bonuses.club/santa_vegas_easter_egg/index.html?showSanta=false"<br />
+                &nbsp;&nbsp;frameborder="0" scrolling="no"<br />
                 &gt;&lt;/iframe&gt;</code
               >
             </div>
@@ -404,16 +429,6 @@
                 промо
               </li>
             </ul>
-
-            <p style="margin-top: 15px">
-              <strong>Приклад очищення localStorage (для тестування):</strong>
-            </p>
-            <div class="code-block">
-              <code>
-                // Очистити стан пойманого Санти<br>
-                localStorage.removeItem('santaClicked')
-              </code>
-            </div>
           </div>
         </div>
       </div>
@@ -496,7 +511,7 @@
         group2:
           "<p><strong>Група 2: Активна пасхалка</strong></p><p>Після кліку на зірку користувач бачить альтернативну анімацію гірлянд та пролітаючого Санту. Гірлянди змінюються на party версію, з'являється святкова підсвітка. Можна виконати клік на Санту щоб його спіймати.</p><p><strong>Важливо:</strong> Коли користувач клікає по Санті, це дія зберігається в localStorage (santaClicked=true). При кліку на зірку більше не буде запускатись анімація Санти, і користувач перейде до Групи 3 (Спіймана пасхалка).</p>",
         group3:
-          '<p><strong>Група 3: Поймана пасхалка</strong></p><p>Після того як Санту було спіймано (або при URL параметрі ?showSanta=false), користувач бачить тільки святкову версію лого без анімації Санти.</p>',
+          '<p><strong>Група 3: Спіймана пасхалка</strong></p><p>Після того як Санту було спіймано (або при URL параметрі ?showSanta=false), користувач бачить тільки святкову версію лого без анімації Санти, зірка на яку можна клікнути більше не активна.</p>',
       }
 
       // Функция логирования событий

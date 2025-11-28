@@ -94,10 +94,11 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -57%);
-  width: min(18cqw, 180px);
-  height: min(22cqw, 180px); /* Высота 22% от контейнера не более 180px */
+  width: clamp(18cqw, 18cqw, 180px);
+  height: clamp(18cqw, 22cqw, 180px);
   z-index: 100;
   cursor: pointer;
+  border-radius: 50%;
   /* Для отладки раскомментировать: */
   /* background: rgba(255, 0, 0, 0.3); */
 }
@@ -165,19 +166,20 @@ body {
 }
 
 /* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .sound-toggle {
-    width: 25px;
-    height: 25px;
+    width: 50px;
+    height: 50px;
     bottom: 8px;
     right: 8px;
   }
 }
 
-@media (max-width: 600px) {
-  .sound-toggle {
-    width: 50px;
-    height: 50px;
+/* Container query для кликабельной зоны звезды на мобильных */
+@container (max-width: 600px) {
+  .star-click-zone {
+    width: clamp(30cqw, 25cqw, 220px) !important;
+    height: clamp(30cqw, 30cqw, 240px) !important;
   }
 }
 
