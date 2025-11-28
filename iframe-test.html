@@ -279,7 +279,7 @@
                 <input type="radio" name="widgetGroup" value="group3" />
                 <span>🎄 Група 3: Спіймана пасхалка</span>
               </label>
-              <label>
+              <label id="debugZonesLabel">
                 <input type="checkbox" id="debugZones" />
                 <span>🟥 Показати клікабельні зони</span>
               </label>
@@ -459,7 +459,26 @@
       const groupDescription = document.getElementById('groupDescription')
       const groupRadios = document.querySelectorAll('input[name="widgetGroup"]')
       const debugZonesCheckbox = document.getElementById('debugZones')
+      const debugZonesLabel = document.getElementById('debugZonesLabel')
       const debugOverlay = document.getElementById('debugOverlay')
+
+      // Функция для показа/скрытия чекбокса в зависимости от группы
+      function updateDebugZonesVisibility(selectedGroup) {
+        if (selectedGroup === 'group1') {
+          debugZonesLabel.style.display = 'flex'
+        } else {
+          debugZonesLabel.style.display = 'none'
+          // Сбрасываем чекбокс и скрываем overlay при смене на группу 2 или 3
+          debugZonesCheckbox.checked = false
+          debugOverlay.style.display = 'none'
+        }
+      }
+
+      // Инициализация видимости чекбокса при загрузке страницы
+      const initialGroup =
+        document.querySelector('input[name="widgetGroup"]:checked')?.value ||
+        'group1'
+      updateDebugZonesVisibility(initialGroup)
 
       // Функция для обновления URL iframe с учетом группы
       function updateIframeUrl() {
@@ -533,10 +552,10 @@
         radio.addEventListener('change', function () {
           const selectedGroup = this.value
 
-          // Сбрасываем чекбокс "Показать кликабельные зоны"
-          debugZonesCheckbox.checked = false
-          debugOverlay.style.display = 'none'
-          // Отправляем postMessage в iframe для скрытия зон
+          // Обновляем видимость чекбокса в зависимости от группы
+          updateDebugZonesVisibility(selectedGroup)
+
+          // Отправляем postMessage в iframe для скрытия зон (если чекбокс был включен)
           if (widgetFrame.contentWindow) {
             widgetFrame.contentWindow.postMessage(
               WIDGET_COMMANDS.SHOW_DEBUG_ZONES(false),
