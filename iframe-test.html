@@ -133,6 +133,8 @@
         align-items: center;
         gap: 10px;
         font-weight: 600;
+        font-size: 16px;
+        line-height: 1.5;
         background: white;
         padding: 10px 20px;
         border-radius: 25px;
@@ -141,15 +143,55 @@
         transition: all 0.3s ease;
       }
 
+      .demo-controls label span {
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
       .demo-controls label:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transform: translateY(-2px);
+      }
+
+      #resetGroup1Btn {
+        display: none;
+        cursor: pointer;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 1.5;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      #resetGroup1Btn:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-2px) !important;
       }
 
       .demo-controls input {
         width: 15px;
         height: 15px;
         cursor: pointer;
+      }
+
+      .demo-controls label:has(input:disabled) {
+        opacity: 0.8;
+        cursor: not-allowed;
+      }
+
+      .demo-controls label:has(input:disabled) span {
+        color: #999;
+      }
+
+      .demo-controls input:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
       }
 
       #widgetFrame {
@@ -267,10 +309,13 @@
           <h2>📺 Демонстрація віджета</h2>
           <div class="demo-section">
             <div class="demo-controls">
-              <label>
-                <input type="radio" name="widgetGroup" value="group1" checked />
+              <label id="group1Label">
+                <input type="radio" name="widgetGroup" value="group1" checked id="group1Radio" />
                 <span>🏁 Група 1: Стандартний режим</span>
               </label>
+              <button id="resetGroup1Btn" type="button">
+                <span>🔄 Очистити localStorage</span>
+              </button>
               <label>
                 <input type="radio" name="widgetGroup" value="group2" />
                 <span>🎅 Група 2: Активна пасхалка</span>
@@ -461,12 +506,28 @@
       const debugZonesCheckbox = document.getElementById('debugZones')
       const debugZonesLabel = document.getElementById('debugZonesLabel')
       const debugOverlay = document.getElementById('debugOverlay')
+      const group1Label = document.getElementById('group1Label')
+      const group1Radio = document.getElementById('group1Radio')
+      const resetGroup1Btn = document.getElementById('resetGroup1Btn')
+
+      // Флаг для отслеживания, была ли нажата звезда
+      let isStarClicked = false
 
       // Функция для показа/скрытия чекбокса в зависимости от группы
       function updateDebugZonesVisibility(selectedGroup) {
         if (selectedGroup === 'group1') {
+          // Показываем чекбокс в группе 1
           debugZonesLabel.style.display = 'flex'
+          // Проверяем, видна ли кнопка "Очистить Local Storage"
+          // Если кнопка видна, значит анимация завершена - отключаем чекбокс
+          if (resetGroup1Btn && window.getComputedStyle(resetGroup1Btn).display !== 'none') {
+            debugZonesCheckbox.disabled = true
+          } else {
+            // Если кнопка не видна, значит можно использовать чекбокс (активен)
+            debugZonesCheckbox.disabled = false
+          }
         } else {
+          // В других группах скрываем чекбокс
           debugZonesLabel.style.display = 'none'
           // Сбрасываем чекбокс и скрываем overlay при смене на группу 2 или 3
           debugZonesCheckbox.checked = false
@@ -479,6 +540,9 @@
         document.querySelector('input[name="widgetGroup"]:checked')?.value ||
         'group1'
       updateDebugZonesVisibility(initialGroup)
+      
+      // Чекбокс должен быть активным при загрузке (отключается только когда появляется кнопка "Очистить Local Storage")
+      debugZonesCheckbox.disabled = false
 
       // Функция для обновления URL iframe с учетом группы
       function updateIframeUrl() {
@@ -520,7 +584,38 @@
 
       // Обработка чекбокса для показа/скрытия кликабельных зон
       debugZonesCheckbox.addEventListener('change', function () {
-        debugOverlay.style.display = this.checked ? 'block' : 'none'
+        if (this.checked) {
+          // Показываем debug overlay
+          debugOverlay.style.display = 'block'
+          // Проверяем наличие и видимость элемента #starClickZone внутри iframe
+          const starDebugZone = debugOverlay.querySelector('.star-click-zone')
+          if (starDebugZone) {
+            try {
+              const iframeDoc = widgetFrame.contentDocument || widgetFrame.contentWindow.document
+              const starClickZoneInIframe = iframeDoc.getElementById('starClickZone')
+              
+              // Показываем зону звезды только если элемент существует И видим (не имеет display: none)
+              if (starClickZoneInIframe) {
+                const iframeWindow = widgetFrame.contentWindow
+                const computedStyle = iframeWindow.getComputedStyle(starClickZoneInIframe)
+                const isVisible = computedStyle.display !== 'none'
+                
+                if (isVisible) {
+                  starDebugZone.style.setProperty('display', 'block', 'important')
+                } else {
+                  starDebugZone.style.display = 'none'
+                }
+              } else {
+                starDebugZone.style.display = 'none'
+              }
+            } catch (error) {
+              // Если нет доступа к iframe (CORS), скрываем зону звезды
+              starDebugZone.style.display = 'none'
+            }
+          }
+        } else {
+          debugOverlay.style.display = 'none'
+        }
         // Отправляем postMessage в iframe для управления визуализацией зон
         widgetFrame.contentWindow.postMessage(
           WIDGET_COMMANDS.SHOW_DEBUG_ZONES(this.checked),
@@ -551,6 +646,15 @@
       groupRadios.forEach(radio => {
         radio.addEventListener('change', function () {
           const selectedGroup = this.value
+
+          // Сбрасываем флаг, что звезда была нажата при смене группы
+          isStarClicked = false
+
+          // Возвращаем радиокнопку "Группа 1" на место (если была заменена кнопкой)
+          if (group1Label && resetGroup1Btn) {
+            group1Label.style.display = 'flex'
+            resetGroup1Btn.style.display = 'none'
+          }
 
           // Обновляем видимость чекбокса в зависимости от группы
           updateDebugZonesVisibility(selectedGroup)
@@ -648,13 +752,89 @@
           }
           // Скрыть debug overlay звезды
           if (event.data.type === 'hideStarDebugZone') {
+            isStarClicked = true
             const debugOverlay = document.getElementById('debugOverlay')
             if (debugOverlay) {
+              const starZone = debugOverlay.querySelector('.star-click-zone')
+              if (starZone) {
+                starZone.style.display = 'none'
+              }
+            }
+          }
+          // Клик по звезде - отмечаем, что звезда была нажата
+          if (event.data.type === 'starClicked') {
+            isStarClicked = true
+            const debugOverlay = document.getElementById('debugOverlay')
+            if (debugOverlay) {
+              const starZone = debugOverlay.querySelector('.star-click-zone')
+              if (starZone) {
+                starZone.style.display = 'none'
+              }
+            }
+          }
+          
+          // Завершение анимации - заменяем радиокнопку "Группа 1" на кнопку очистки
+          if (event.data.type === 'animationEnded') {
+            const selectedGroup =
+              document.querySelector('input[name="widgetGroup"]:checked')?.value ||
+              'group1'
+            if (selectedGroup === 'group1' && group1Label && resetGroup1Btn) {
+              // Скрываем радиокнопку "Группа 1"
+              group1Label.style.display = 'none'
+              // Показываем кнопку "Очистить localStorage" (вместо label, не внутри)
+              resetGroup1Btn.style.display = 'flex'
+              // Отключаем чекбокс "Показать кликабельные зоны"
+              debugZonesCheckbox.disabled = true
+              debugZonesCheckbox.checked = false
               debugOverlay.style.display = 'none'
+              logEvent('🎬 Анімація завершена - можна очистити localStorage для повторного запуску анімації', 'info')
             }
           }
         }
       })
+
+      // Функция для обновления группы 1 (сброс состояния)
+      function resetGroup1() {
+        // Очищаем localStorage
+        localStorage.removeItem('santaClicked')
+        
+        // Очищаем кеш браузера
+        if ('caches' in window) {
+          caches.keys().then(cacheNames => {
+            cacheNames.forEach(cacheName => {
+              caches.delete(cacheName)
+            })
+          })
+        }
+
+        // Сбрасываем чекбокс и включаем его обратно
+        debugZonesCheckbox.checked = false
+        debugZonesCheckbox.disabled = false
+        debugOverlay.style.display = 'none'
+        // Сбрасываем флаг, что звезда была нажата
+        isStarClicked = false
+
+        // Возвращаем радиокнопку "Группа 1" на место
+        if (group1Label && resetGroup1Btn) {
+          group1Label.style.display = 'flex'
+          resetGroup1Btn.style.display = 'none'
+          // Выбираем радиокнопку "Группа 1"
+          if (group1Radio) {
+            group1Radio.checked = true
+          }
+        }
+
+        // Перезагружаем iframe
+        const currentSrc = widgetFrame.src
+        widgetFrame.src = ''
+        setTimeout(() => {
+          widgetFrame.src = currentSrc.split('?')[0] + '?v=' + Date.now()
+          logEvent('🔄 localStorage очищено - можна знову запустити анімацію', 'info')
+        }, 100)
+      }
+
+      // Обработчик кнопки обновления группы 1
+      resetGroup1Btn.addEventListener('click', resetGroup1)
 
       // Начальное сообщение
       logEvent('Тестова сторінка готова. Очікуємо події від віджета...', 'info')

@@ -41,6 +41,14 @@
       type: 'hideStarDebugZone',
       source: 'santa-vegas-widget',
     },
+    STAR_CLICKED: {
+      type: 'starClicked',
+      source: 'santa-vegas-widget',
+    },
+    ANIMATION_ENDED: {
+      type: 'animationEnded',
+      source: 'santa-vegas-widget',
+    },
   }
 
   // Длительность анимации Санты (мс)
@@ -128,6 +136,9 @@
 
   // ID анимации обновления зон (для остановки через cancelAnimationFrame)
   let santaZoneAnimationId = null
+
+  // Обработчик для пересоздания зон после перезагрузки SVG (для удаления при необходимости)
+  let svgReloadHandler = null
 
   /**
    * ПОЛУЧЕНИЕ ДОСТУПА К SVG ДОКУМЕНТУ
@@ -241,16 +252,18 @@
           overlay.style.fill = 'rgba(255, 0, 0, 0.3)' // Красный фон, 30% прозрачности
           overlay.style.stroke = 'rgba(255, 0, 0, 0.8)' // Красная обводка, 80% непрозрачности
           overlay.style.strokeWidth = '2' // Толщина обводки: 2px
+          // Если debug включен - зоны сразу видны и активны
+          overlay.style.display = 'block'
+          overlay.style.pointerEvents = 'auto'
         } else {
           // Без визуализации (прозрачные зоны)
           overlay.style.fill = 'transparent'
           overlay.style.stroke = 'none'
+          // СОСТОЯНИЕ ПО УМОЛЧАНИЮ: зона скрыта и неактивна
+          overlay.style.pointerEvents = 'none' // Не реагирует на клики
+          overlay.style.display = 'none' // Скрыта
         }
         overlay.style.cursor = 'pointer' // Курсор-указатель при наведении
-
-        // СОСТОЯНИЕ ПО УМОЛЧАНИЮ: зона скрыта и неактивна
-        overlay.style.pointerEvents = 'none' // Не реагирует на клики
-        overlay.style.display = 'none' // Скрыта
 
         // Сохраняем данные для управления зоной
         overlay.dataset.santaZone = config.id // ID зоны
@@ -272,6 +285,28 @@
 
     // Зоны созданы, но скрыты по умолчанию (display: none)
     // Они будут показаны через startSvgZonesAnimation() в нужное время
+  }
+
+  /**
+   * ОБНОВЛЕНИЕ ВИЗУАЛИЗАЦИИ ЗОН БЕЗ ПЕРЕСОЗДАНИЯ
+   *
+   * Эта функция обновляет только стили визуализации (fill/stroke) существующих зон,
+   * не пересоздавая их. Это предотвращает изменение размеров зон при включении/выключении
+   * debug во время анимации.
+   */
+  function updateSvgZonesVisualization() {
+    svgClickOverlays.forEach(overlay => {
+      if (showDebugZones) {
+        // Визуализация для отладки (красные полупрозрачные прямоугольники)
+        overlay.style.fill = 'rgba(255, 0, 0, 0.3)' // Красный фон, 30% прозрачности
+        overlay.style.stroke = 'rgba(255, 0, 0, 0.8)' // Красная обводка, 80% непрозрачности
+        overlay.style.strokeWidth = '2' // Толщина обводки: 2px
+      } else {
+        // Без визуализации (прозрачные зоны)
+        overlay.style.fill = 'transparent'
+        overlay.style.stroke = 'none'
+      }
+    })
   }
 
   /**
@@ -430,6 +465,8 @@
     // Скрываем debug overlay на тестовой странице (если есть)
     if (window.parent && window.parent !== window) {
       window.parent.postMessage(EVENTS.HIDE_STAR_DEBUG_ZONE, '*')
+      // Уведомляем родителя о клике на звезду (для скрытия чекбокса)
+      window.parent.postMessage(EVENTS.STAR_CLICKED, '*')
     }
 
     // 1. Скрыть звезду с fade эффектом
@@ -462,10 +499,34 @@
     }, 500)
   }
 
-  // Проверка состояния виджета при загрузке
+  /**
+   * Проверка состояния виджета при загрузке
+   *
+   * Виджет может работать в двух режимах:
+   * 1. Напрямую (не в iframe) - параметры в URL виджета: index.html?showSanta=false
+   * 2. В iframe - параметры могут быть:
+   *    - В URL виджета: index.html?showSanta=true или index.html?showSanta=false (если родитель передал их в src iframe)
+   *    - В URL родительской страницы: parent.html?showSanta=true или parent.html?showSanta=false (если родитель не передал их в src iframe)
+   *
+   * Логика: сначала проверяем URL виджета, затем (если не найдено и виджет в iframe) - URL родителя
+   */
   function checkWidgetState() {
+    // Проверяем параметры из собственного URL виджета
     const urlParams = new URLSearchParams(window.location.search)
-    const showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
+    let showSantaParam = urlParams.get(URL_PARAMS.SHOW_SANTA)
+
+    // Если параметр не найден и виджет в iframe, пытаемся прочитать из URL родительской страницы
+    if (!showSantaParam && window.parent && window.parent !== window) {
+      try {
+        const parentUrlParams = new URLSearchParams(window.parent.location.search)
+        showSantaParam = parentUrlParams.get(URL_PARAMS.SHOW_SANTA)
+        console.log('Параметр showSanta прочитан из URL родительской страницы:', showSantaParam)
+      } catch (error) {
+        // Если нет доступа к URL родителя (CORS), игнорируем ошибку
+        console.log('Нет доступа к URL родительской страницы (CORS)')
+      }
+    }
+
     const santaCaught = localStorage.getItem(STORAGE_KEYS.SANTA_CLICKED)
 
     console.log('Проверка состояния виджета:')
@@ -549,9 +610,10 @@
         if (event.data.type === 'showDebugZones') {
           showDebugZones = event.data.value === true
           console.log('showDebugZones установлен в:', showDebugZones)
-          // Пересоздаем зоны с новым флагом (если они уже созданы)
+          // Обновляем только визуализацию существующих зон, не пересоздавая их
+          // Это предотвращает изменение размеров зон при включении debug во время анимации
           if (svgClickOverlays.length > 0) {
-            rebuildSvgClickZones()
+            updateSvgZonesVisualization()
           }
         }
         // Обработка команды активации группы 2 (активная пасхалка)
@@ -646,61 +708,80 @@
     isAnimationPlaying = true
     console.log('Запускаем анимацию')
 
+    // Удаляем старый обработчик, если он был (на случай повторного вызова)
+    if (svgReloadHandler && santaAnimation) {
+      santaAnimation.removeEventListener('load', svgReloadHandler)
+      svgReloadHandler = null
+    }
+
     // Показываем wrapper с анимацией
     santaAnimationWrapper.style.display = 'block'
     santaAnimationWrapper.style.opacity = '1'
 
     // ТОЛЬКО ПОСЛЕ показа wrapper создаем SVG зоны
+    // Флаг для предотвращения двойного создания зон
+    let zonesCreated = false
+
     // Функция для создания зон
     const createSvgZones = () => {
+      // Предотвращаем двойное создание
+      if (zonesCreated) {
+        console.log('[SantaWidget] Зоны уже созданы, пропускаем')
+        return true
+      }
+
       const doc = getSvgDocument()
       if (doc && doc.documentElement) {
         rebuildSvgClickZones()
         // Запускаем анимацию обновления зон (зоны будут показываться по времени)
         startSvgZonesAnimation()
+        zonesCreated = true
         console.log('✅ Кликабельные зоны созданы, анимация запущена')
         return true
       }
+      console.warn('[SantaWidget] Не удалось создать зоны - SVG документ недоступен')
       return false
     }
-
-    // Пробуем создать зоны сразу (если SVG уже загружен)
-    setTimeout(() => {
-      if (!createSvgZones()) {
-        // SVG еще не загружен, ждем события load
-        santaAnimation.addEventListener(
-          'load',
-          () => {
-            setTimeout(() => {
-              createSvgZones()
-            }, 100)
-          },
-          { once: true }
-        )
-      }
-    }, 150)
-
-    // Обработчик для пересоздания зон после перезагрузки SVG
-    const onSvgReload = () => {
-      setTimeout(() => {
-        createSvgZones()
-        console.log('✅ SVG перезагружен, зоны пересозданы')
-      }, 100)
-    }
-    santaAnimation.addEventListener('load', onSvgReload, { once: true })
 
     // Перезагружаем SVG для перезапуска анимации
     const currentSrc = santaAnimation.data
     console.log('Перезагружаем SVG:', currentSrc)
     santaAnimation.data = ''
+
+    // Обработчик для пересоздания зон после перезагрузки SVG
+    svgReloadHandler = () => {
+      setTimeout(() => {
+        if (isAnimationPlaying && !zonesCreated) {
+          // Проверяем, что анимация все еще активна и зоны еще не созданы
+          createSvgZones()
+          console.log('✅ SVG перезагружен, зоны пересозданы')
+        }
+      }, 150) // Увеличиваем задержку для гарантии загрузки SVG
+    }
+    santaAnimation.addEventListener('load', svgReloadHandler, { once: true })
+
     setTimeout(() => {
       santaAnimation.data = currentSrc.split('?')[0] + '?v=' + Date.now()
       console.log('SVG перезагружен')
+
+      // Пробуем создать зоны после перезагрузки (если SVG уже загружен)
+      // Используем большую задержку, чтобы дать время SVG загрузиться
+      setTimeout(() => {
+        if (isAnimationPlaying && !zonesCreated) {
+          if (!createSvgZones()) {
+            // SVG еще не загружен, ждем события load (обработчик уже добавлен выше)
+            console.log('[SantaWidget] Ожидаем загрузки SVG для создания зон')
+          }
+        }
+      }, 200) // Увеличиваем задержку
     }, 10)
 
     // Скрываем анимацию после завершения (полная длительность SVG)
     setTimeout(() => {
-      handleAnimationEnd()
+      if (isAnimationPlaying) {
+        // Проверяем, что анимация все еще активна (не была остановлена кликом)
+        handleAnimationEnd()
+      }
     }, SANTA_ANIMATION_DURATION)
   }
 
@@ -711,12 +792,23 @@
     // Останавливаем анимацию SVG зон (скрывает все зоны)
     stopSvgZonesAnimation()
 
+    // Удаляем обработчик загрузки SVG (если был)
+    if (svgReloadHandler && santaAnimation) {
+      santaAnimation.removeEventListener('load', svgReloadHandler)
+      svgReloadHandler = null
+    }
+
     // Скрываем wrapper
     console.log('Скрываем wrapper и кликабельную зону')
     santaAnimationWrapper.style.display = 'none'
     santaAnimationWrapper.style.opacity = '0'
 
     isAnimationPlaying = false
+
+    // Уведомляем родителя о завершении анимации
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(EVENTS.ANIMATION_ENDED, '*')
+    }
   }
 
   // Обработка клика на Санту (в кликабельной зоне)
