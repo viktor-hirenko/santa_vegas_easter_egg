@@ -103,6 +103,31 @@ body {
   /* background: rgba(255, 0, 0, 0.3); */
 }
 
+/* Кликабельные зоны для Санты */
+.santa-click-zone {
+  position: absolute;
+  z-index: 101;
+  cursor: pointer;
+  pointer-events: auto;
+  display: none;
+}
+
+.santa-click-zone.bottom-zone {
+  bottom: 0;
+  width: 49%;
+  left: 53%;
+  transform: translateX(-50%);
+  height: 44%;
+}
+
+.santa-click-zone.top-zone {
+  top: 0;
+  width: 55%;
+  left: 53%;
+  transform: translateX(-50%);
+  height: 36%;
+}
+
 /* SVG объект с анимацией Санты */
 .santa-animation-container {
   position: absolute;
