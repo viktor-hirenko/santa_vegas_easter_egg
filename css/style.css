@@ -198,6 +198,17 @@ body {
     bottom: 8px;
     right: 8px;
   }
+
+  /* Увеличенные кликабельные зоны для мобильных */
+  .santa-click-zone.bottom-zone {
+    width: 65%;
+    height: 48%;
+  }
+
+  .santa-click-zone.top-zone {
+    width: 70%;
+    height: 41%;
+  }
 }
 
 /* Container query для кликабельной зоны звезды на мобильных */
