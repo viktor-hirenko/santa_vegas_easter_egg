@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Santa Vegas Widget - Simple Test</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .widget-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        max-width: 100%;
+      }
+
+      #widgetFrame {
+        width: 100%;
+        height: 256px;
+        border: none;
+        border-radius: 8px;
+        display: block;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="widget-container">
+      <iframe id="widgetFrame" frameborder="0" scrolling="no"></iframe>
+    </div>
+
+    <script>
+      // Виджет сам читает параметры из URL родительской страницы
+      // Просто загружаем виджет
+      document.getElementById('widgetFrame').src = 'index.html'
+    </script>
+  </body>
+</html>
+
